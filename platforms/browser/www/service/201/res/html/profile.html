@@ -1,0 +1,33 @@
+<div>
+	GProfile view 1
+	<table class="infobox">
+		<tr>
+			<td>%nikname%</td>
+			<td><input id="niknameTxb" type="text" value="%nikname%"/></td>
+		</tr>
+		<tr>
+			<td>%country%</td>
+			<td><select id="countryCmb"></select></td>
+		</tr>
+		<tr>
+			<td>%national_code%</td>
+			<td><input id="codeTxb" type="text" value="%code%"/></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td><button class="green btn" onclick="GProfile.onSave()">%save-lbl%</button></td>
+		</tr>
+	</table>
+
+	GProfile view 2
+	<span>
+		<img src="res/image/jpg/countryFlag/%country%.jpg"/>&nbsp; <b>%nikname%</b>
+	</span>
+
+	Play request
+	<div>
+		<p>%requestMsg-lbl%</p>
+		<button class="green btn">%accept-lbl%</button>
+		<button class="red btn">%decline-lbl%</button>
+	</div>
+</div>

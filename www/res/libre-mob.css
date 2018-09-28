@@ -1,0 +1,118 @@
+html,body{min-height: 100%;overflow-x: hidden;}
+*{padding:0px;margin: 0px;}
+#mainMenuPan
+{
+	position:fixed;
+	top:0px;
+	left:0px;
+	right:0px;
+	height:5vh;
+	line-height:21px;
+	/*padding:5px;*/
+	background-color:#3F7FBF;
+	color:white;
+
+}
+#extraPan
+{
+	position:absolote;
+	visibility:hidden;
+}
+.workPanNormal
+{
+	font-size: 3em;
+	position:fixed;
+	top:5vh;
+	left:0px;
+	right:0px;
+	bottom:15px;
+	padding:5px;
+	background-color:#f4fbfb;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+.sidebar{
+	transition: bottom 0.5s;
+	color:white;
+	position:fixed;
+	top:5vh;
+	left:0px;
+	right:0px;
+	background-color:#3F7FBF;
+	overflow-y: auto;
+	overflow-x: hidden;
+	background:linear-gradient(to bottom,#3F7FBF,#267FD8);
+	font-size: 4em;
+}
+.sidebarNormal
+{
+	bottom:0px;
+	padding:0.5em;
+}
+.workPanFwork
+{
+	font-size: 3em;
+	position:fixed;
+	top:5vh;
+	left:0px;
+	right:0px;
+	bottom:15px;
+	padding:5px;
+	background-color:#f4fbfb;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+.sidebarFwork
+{
+	bottom: 95vh;
+	padding:0em;
+}
+.sidebarFwork *{display: none}
+.visibleFloatbar
+{
+	background-color: gray;
+	color:white;
+	padding:10px;
+	position:fixed; top:31px; left:0px; right:0px;
+	height:35%;
+}
+.invisibleFloatbar
+{
+	position:absolute; top:-10px; left:0px; width:0px;overflow: hidden;
+	height:0px;
+}
+#statusPan
+{
+	position:fixed;
+	height:15px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+	padding:5px;
+	background-color:#201677;
+	font-size:15px;
+	line-height:15px;
+	color:white;
+	display: none;
+}
+
+
+#mainMenuPan ul{padding:0px; margin:0px; list-style:none}
+#mainMenuPan #menuItemList>li{float:right; padding:2px 5px;border-left: 1px solid white;margin:5pt;line-height:26px;font-size:15px; cursor:pointer}
+#mainMenuPan #menuItemList li:first-child{border-left: 0px solid white;}
+#mainMenuPan #menuItemList li:hover{text-decoration: underline}
+#mainMenuPan #menuItemTools li{float:right; padding:2px;margin-right:5pt;line-height:21px;font-size:15px; cursor:pointer;margin-top:5pt;}
+#mainMenuPan li img{height: 4vh;vertical-align: middle;}
+
+#searchPan{ border-radius: 2vh; background-color:white}
+#searchPan input{border:0px solid white; outline: none;margin:0.3vh 1vh;font-size:3vh}
+.windowback{position: fixed;top:0px; left:0px; right:0px; bottom: 0px; background-color: rgba(100,100,100,0.2)}
+.dialogBox{position: fixed; width: 50%; left:25%;top:25%;padding:10px;border-radius:5px; border:1px solid white;background-color:#feedda;color:black;}
+.selectedItem
+{
+	font-weight: bold;
+	font-style: italic;
+	border-top-left-radius: 10px;
+}
+#pinBtn{display: none;position: absolute; top: -200pt}
+#projectBtn{display: none;position: absolute; top: -200pt}

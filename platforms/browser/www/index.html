@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<link type="text/css" rel="stylesheet" href="res/libre-all-cordova.css"/>
+		<link rel="stylesheet" type="text/css" href="res/jetframe.css"/>
+		<link rel="stylesheet" type="text/css" href="res/popup.css"/>
+		<link rel="stylesheet" type="text/css" href="res/css/msg-style-cordova.css"/>
+		<script type="text/javascript" src="core/libre1.js"></script>
+		<script type="text/javascript" src="tmp/cdn-netor-ir.js"></script>
+		<script type="text/javascript" src="core/js/__init__.js"></script>
+		<script type="text/javascript" src="core/js/FSMessage.js"></script>
+		<script type="text/javascript" src="core/js/Messenger.js"></script>
+		<script type="text/javascript" src="core/UniversalServer.js"></script>
+		<script type="text/javascript" src="tmp/servers.js"></script>
+		<script type="text/javascript" src="core/cryptoJS.js"></script>
+		<script type="text/javascript" src="core/CAuth.js"></script>
+
+		<script type="text/javascript" src="core/jetframeUI.js"></script>
+        <script type="text/javascript" src="core/js/people.js"></script>
+        <script type="text/javascript" src="core/js/people_evt.js"></script>
+		<script type="text/javascript" src="core/js/contact.js"></script>
+        <script type="text/javascript" src="core/js/Profile.js"></script>
+		<script type="text/javascript" src="tmp/CUAD.js"></script>
+		<script type="text/javascript" src="res/lang/en/StrRes.js"></script>
+		<script type="text/javascript" src="res/meta/emojies.js"></script>
+		<script type="text/javascript" src="service/201/core/js/Chess.js"></script>
+		<script type="text/javascript" src="service/201/core/jetXtra.js"></script>
+		<script type="text/javascript" src="cordova.js"></script>
+
+		<style type="text/css">
+			html,body{height: 100%}
+			*{margin:0px;}
+		</style>
+	</head>
+	<body onclick="if(!Libre.sidebar.pined)Libre.sidebar.visible(false);">
+		<div id="mainMenuPan" onclick="Libre.stopPropagation(event);"><ul id="menuItemList"><li>Home</li><li>About</li></ul>
+			<div id="msgAudPar"><span id="msgAud">&#127968;</span></div>
+		<ul id="menuItemTools"><li>Setting</li><li>Search</li></ul></div>
+		<div id="extraPan" onclick="Libre.stopPropagation(event);">Extra bars -for fixed positioned dialog, originally hidden</div>
+		<div id="workPan" class="workPanNormal">
+			<center>
+				<div>
+					<img style="width: 25vw;margin: 1vw" src="res/image/png/logo.png"/>
+				</div>
+				<p>Welcome to Flask Communication Tool version 0.1 pre-release edition.</p>
+			</center>
+			<p>&nbsp;</p><hr/>
+			<p style="margin:1vw">Features:
+				<ul style="margin:3vh">
+					<li>Edit/Delete and unsend messages</li>
+					<li>Flag Messages</li>
+					<li>Run applications and Play games (in this version only chess)</li>
+					<li>View message status (sent,received,seen)</li>
+					<li>Search over messages and contacts</li>
+				</ul>
+			</p>
+			<p style="margin:1vw">Features of next version:
+				<ul style="margin:3vh">
+					<li>Upload files</li>
+					<li>Record audio and video</li>
+					<li>Drawing application</li>
+					<li>Application status snapshop</li>
+					<li>Edit profile information directly</li>
+					<li>Search over the web</li>
+					<li>Support for system notification</li>
+					<li>Scheduled send message</li>
+					<li>Messaging panel and API for business</li>
+				</ul>
+			</p>
+		</div>
+		<div id="sidebar" class="sidebar sidebarNormal" onclick="Libre.stopPropagation(event);">
+			<!--<input class="textbox" type="text" placeholder="filter..." onkeyup="Conversation.search(event.target.value,null,true);" id="filterTxb">-->
+			<ul top class="menuList" id="menuArea">
+				<li id="homeMenu" onclick="Messenger.onHome()">&#127968; &nbsp; Home</li>
+				<li id="settingMenu" onclick="Messenger.onSetting()">&#9881; &nbsp; Setting</li>
+				<!--<li id="profileMenu" onclick="Messenger.onProfile()">&#128104; &nbsp; Profile</li>-->
+				<li id="flagMenu" onclick="Messenger.listFlags()">&#9873; &nbsp; Flag</li>
+			</ul>
+			<ul class="convList" id="convArea"></ul>
+			<ul class="convList" id="contactArea"></ul>
+			<ul class="menuList">
+				<li id="logoutMenu" onclick="CAuth.logout(function(){window.location.href='login.html';});">&#10548; &nbsp; Logout</li>
+				<li id="refreshBtn" onclick="ContactCheck.refresh();">&nbsp; &nbsp; &nbsp; Refresh Contacts</li>
+			</ul>
+		</div>
+		<div id="statusPan" onclick="Libre.stopPropagation(event);">Status area -dynamic size</div>
+		<div id="floatbar" class="invisibleFloatbar" onclick="Libre.stopPropagation(event);">Float bar is here</div>
+
+		<script type="text/javascript">
+			if(typeof(jsClientApp)=="undefined")jsClientApp=true; //define this page is js app
+			Jet.config();
+			Bon.reset();
+			LU={};
+			if(typeof(CAuth)!="undefined"){
+				//CAuth.server="http://localhost/Messenger/";
+				CAuth.server="http://vest.abrapp3.ml/";
+				CAuth.appkey="NQ==_dc76a491afa8333129d11eb57b433c4c";
+				NetworkTransfer.beforeSend=CAuth.beforeSend;
+			}
+			if(typeof(cordova)=="undefined")__init__();
+			else document.addEventListener("deviceready", __init__, false);
+		</script>
+	<body>
+</html>

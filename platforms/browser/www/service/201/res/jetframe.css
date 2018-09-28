@@ -1,0 +1,64 @@
+.hide,.hide *{position: absolute; top:-10px; height: 0px; width: 0px; visibility: hidden}
+.visible{visibility: visible}
+.center{margin-left: auto; margin-right: auto;text-align: center}
+
+
+.v-setbox{}
+.v-setbox *{display: block;margin-bottom:2px}
+.v-setbox *:first-child{border-top-left-radius: 10px; border-top-right-radius: 10px}
+.v-setbox *:last-child{border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;margin-bottom: 0px}
+
+.fix-content{display: inline-block}
+.wrap{display: block}
+
+.rpan{border-radius: 5px; margin: 5px}
+
+
+.red-button{background-color:#e71d1d; border: 1px solid black;color:white; font-weight: bold;cursor: pointer;outline: none;padding:5px}
+.red-button:active{background-color:#be1414;}
+.green-button{background-color:#00c400; border: 1px solid black;color:white; font-weight: bold;cursor: pointer;outline: none;padding:5px}
+.green-button:active{background-color:#009300;}
+.blue-button{background-color:#226dec; border: 1px solid black;color:white; font-weight: bold;cursor: pointer;outline: none;padding:5px}
+.blue-button:active{background-color:#104eb4;}
+
+.infobox input,.infobox textarea,.infobox select{border:1px solid black;padding:5px;background-color: #e8eeff; outline: none}
+.infobox input:focus,.infobox textarea:focus,.infobox select:focus{border:2px solid #1153ee;padding:4px}
+
+.textbox {border:1px solid black;padding:5px;background-color: #e8eeff; outline: none}
+.textbox:focus{border:2px solid #1153ee;padding:4px}
+
+.endhr{clear: both; visibility: hidden; line-height: 0px;font-size: 0px}
+
+.itemList{width: 90%;border-spacing: 0px;list-style: none}
+.itemList tr{background-color: #a7affe}
+.itemList tr:hover{background-color: #7a87fe}
+.itemList li{padding:2px 5px;margin: 3px; background-color: #cedbfd;border-color: #a9bffc;display: inline-block;float:left}
+
+
+/* direction specific */
+/* rtl
+.itemList li span{padding:2px 5px;margin-right: 10px;float: right;}
+.itemList li span:first-child{margin-right: 0px;}
+.h-setbox{direction:rtl}
+.h-setbox *{}
+.h-setbox *:first-child{border-top-right-radius: 10px; border-bottom-right-radius: 10px}
+.h-setbox *:last-child{border-top-left-radius: 10px; border-bottom-left-radius: 10px}
+
+.menu{padding:0px; margin: 0px;list-style: none}
+.menu li{float:right;margin-left:5px}
+.menu li:first-child{margin-right:20px}
+.menu .searchBox{float:left}
+*/
+
+.itemList li span{padding:2px 5px;margin-left: 10px;}
+.itemList li span:first-child{margin-left: 0px;}
+
+.h-setbox{}
+.h-setbox *{}
+.h-setbox *:first-child{border-top-left-radius: 10px; border-bottom-left-radius: 10px}
+.h-setbox *:last-child{border-top-right-radius: 10px; border-bottom-right-radius: 10px}
+
+.menu{padding:0px; margin: 0px;list-style: none}
+.menu li{float:left;margin-right:5px}
+.menu li:first-child{margin-left:20px}
+.menu .searchBox{float:right}

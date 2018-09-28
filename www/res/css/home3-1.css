@@ -1,0 +1,74 @@
+.btn{display: inline-block;}
+#phoneTxbL,#phoneTxb{width: 65%;}
+#countryCodeL,#countryCode{width: 30%;}
+#countryName,#countryNameL{width: 100%;}
+.gold{background-color: darkgoldenrod; border:2px solid gold; color:white; }
+
+/* from mobile*/
+@media only screen and (orientation: portrait){
+	*{font-size: 1em}
+	*{padding:0px;margin:0px;}
+	#actionBar{
+		text-align: center; padding:15pt 80px; background-color: white;font-size: 2.5em;
+		position: absolute;bottom: 20vh; right: 0px; left:0px; transition: bottom 0.3s;
+	}
+	#viewPan{
+		background-color:rgba(256, 256, 256, 0.6); text-align: center; position:fixed; top:calc(2.5em + 40pt); bottom:0px; left:0px; right:0px;
+		background-color:rgba(22, 22, 22, 0.7);
+	}
+	#viewBackground{
+		position:fixed; top:0px; bottom:0px; left:0px; right:0px; background-repeat: no-repeat;background-position: center; background-size: cover;
+		text-align: center; z-index: -1;
+	}
+	#viewBackground img{transition: all 0.3s;}
+	#viewBackground .fullLogo{margin-top:10vh;height: 40vh}
+	#viewBackground .miniLogo{margin-top: 3vh;height: 10vh}
+	.userForm{
+		background-color:white; display: block; margin:auto; margin-top:20vh; padding: 40pt;text-align: left;
+		width:calc(90% - 80pt); border-radius:1vh; font-size: 3.2vh;
+	}
+	.userForm > div{
+		margin-bottom: 20px;
+	}
+	/*#countryCode{width: 85px}*/
+	#logo{display: none}
+	.footer{position: fixed; bottom: 0px; left: 0px; right: 0px; padding: 20pt;background:rgba(256,256,256,0.4)}
+	.footer a{text-decoration: none;display: inline-block; font-size: 2.5em;padding:10pt;margin:5pt;border-radius: 10pt}
+	/*.userForm input{width: calc(100% - )}*/
+}
+/*for desktop*/
+@media only screen and (orientation: landscape){
+
+	*{padding:0px;margin:0px;}
+	#actionBar{
+		text-align: center; padding:15px 80px; background-color: white;
+		position: absolute;bottom: 10vh; right: 0px; left:0px;
+	}
+	#viewPan{
+		background-color:rgba(256, 256, 256, 0.6); text-align: center; position:fixed; top:60px; bottom:0px; left:0px; right:0px;
+		background-color:rgba(22, 22, 22, 0.7);
+	}
+	#viewBackground{
+		position:fixed; top:0px; bottom:0px; left:0px; right:0px; background-repeat: no-repeat;background-position: center; background-size: cover;
+		text-align: center; z-index: -1;
+	}
+	#viewBackground img{transition: all 0.5s;}
+	#viewBackground .fullLogo{margin-top:10vh;height: 40vh}
+	#viewBackground .miniLogo{margin-top: 3vh;height: 10vh}
+	.userForm{
+		background-color:white; display: block;margin:auto; margin-top:20vh; padding: 20px;text-align: left;
+		width:300px; border-radius: 5px;
+	}
+	.userForm > div{
+		margin-bottom: 20px;
+	}
+	/*#countryCode{width: 85px}*/
+	#logo{position: absolute;top:70px;width: 20%;left:30px;}
+	.footer{position: fixed; bottom: 0px; left: 0px; right: 0px; padding: 10px;background:rgba(256,256,256,0.4)}
+	.footer a{text-decoration: none;}
+
+}
+
+.formbox input:not([type="checkbox"]),.infobox textarea,.formbox select{border:0px solid white;border-bottom:1px solid black;padding:5px;background-color: transparent; outline: none;}
+.formbox input:not([inline]),.formbox select:not([inline]),.formbox textarea:not([inline]){;width: calc(100% - 10px)}
+.formbox input:focus,.infobox textarea:focus,.formbox select:focus{border:0px solid white;border-bottom:3px solid #1153ee;padding-bottom: 3px}

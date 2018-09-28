@@ -1,0 +1,23 @@
+<!DOCTYPE="html">
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="res/style/defaultTheme-portrait.css"/>
+		<script type="text/javascript" src="core/jetframe01.js"></script>
+		<script type="text/javascript" src="core/jetXtra.js"></script>
+		<script type="text/javascript" src="core/jetapp.js"></script>
+		<script type="text/javascript" src="core/js/Chess.js"></script>
+		<script type="text/javascript" src="res/meta/const.js"></script>
+	</head>
+	<body>
+		<div id="container"></div>
+		<script type="text/javascript">
+			Jet.config(); Board.config(); Piece.config();
+			var board=new Board();
+			board.clientColor=Black;
+			var bd=null;
+			bd=prompt("Board data?");
+			if(bd)var board=Board.parse(bd);
+			Board.buildForm(board,1,"container");
+		</script>
+	</body>
+</html>

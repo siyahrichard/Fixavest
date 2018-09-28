@@ -1,0 +1,151 @@
+* { 
+user-select: none;
+-moz-user-select: -moz-none;
+-khtml-user-select: none;
+-webkit-user-select: none;
+}
+.sidebar li{margin-top:20px;}
+.menuList {margin-bottom: 20px}
+.sendArea{background-color: #E6F0F8;padding:10px 5px 15px 5px;border-top:2px solid #2D7BB7;position: absolute;bottom: 0px;left: 0px;right: 0px;text-align: center}
+.sendArea ul{margin:0px; padding:0px;list-style: none}
+.sendArea li{display: inline-block;margin:5pt;}
+.sendArea>*{vertical-align: middle;}
+#attachArea{text-align: left;}
+#msgAud{vertical-align: middle;}
+.messengerPan{background-color: #FBF3E8;height: 100%;position: relative;}
+.messageArea{background-image: url('../image/svg/petite.svg');background-repeat: no-repeat;background-size: contain;background-color: #FBF3E8;overflow-y: auto;height: 80%;}
+.messageArea hr{clear: both;visibility: hidden;}
+
+.itMessage{position:relative;margin-left:1em;background-color: #E0F7DD; border-radius:0.7em; border:1px solid darkgreen;max-width: 80%; padding:0.7em;margin-top:10px;margin-bottom: 10px;display: inline-block;float:left;padding-bottom: 2px}
+.myMessage{position:relative;margin-right:1em;background-color: #F7F6DD; border-radius: 0.7em; border:1px solid orange;max-width: 80%; padding:0.7em;margin-top:10px;margin-bottom: 10px;display: inline-block;float:right;padding-bottom: 2px}
+
+.myMessage:after {
+	content: '.';
+	position: absolute;
+	right: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 0.625em solid transparent;
+	border-left-color: orange;
+	border-right: 0;
+	margin-top: -0.625em;
+	margin-right: -0.625em;
+}
+.itMessage:after {
+	content: '.';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 0.625em solid transparent;
+	border-right-color: darkgreen;
+	border-left: 0;
+	margin-top: -0.625em;
+	margin-left: -0.625em;
+}
+
+.myMessage img[type="emoji"],
+.itMessage img[type="emoji"],
+.editor img
+{width: 1.5em;height: 1.5em;vertical-align: middle;}
+
+.itMessage .info,.myMessage .info
+{color:gray;border-top:1px solid silver;padding-top: 3px;font-size: 0.8em;text-align: center;margin-top: 5px}
+.convList{display: flex;flex-direction: column-reverse;}
+.convList li{cursor: pointer;padding:5px;border-radius: 5px;position: relative;transition: box-shadow 0.3s;}
+.convList li span{overflow:hidden;max-width: calc(100% - 3em - 25px);display: inline-block;vertical-align: middle;height: 1em;line-height: 1em;word-break: break-all;}
+.convList li:hover{box-shadow:0px 0px 2px deepskyblue}
+.convList .active{box-shadow: 0px 0px 40px gold inset}
+.convList .avatar{height: 2em; width: 2em; object-fit: cover;vertical-align: middle;margin-right: 10px;border-radius: 5px}
+.convList .option{height: 2em; width: 1em; object-fit: scale-down;vertical-align: middle;margin-right: 10px;float:right;}
+.convList .msgCount{background-color:#D17D00;font-weight: bold;border-radius: 20px;border:2px solid yellow;padding:2px 4px;margin-top:3px;position: absolute;top:0px;left:0px;}
+
+#audienceTxb{margin-right: 10px}
+.ContactSetting{background-color: darkslategray;margin-bottom: 10px}
+.ContactSetting img{width: 150px;height: 150px;margin:30px 30px 30px 80px; border-radius: 10px;border:10px solid white;}
+.messengerAppArea.hide{display: none}
+
+:root{
+	--size5:5px;
+	--size10:10px;
+	--size20:20px;
+}
+	.portrait #msgAudPar
+	{    
+		display: inline-block;
+		font-size: 30px;
+		padding: 2px;
+		border: 1px solid white;
+		border-radius: 3px;
+		vertical-align: middle;
+		margin-top:5px;
+		float: left;
+		margin-left: 10px;
+		height: 34px;
+		line-height: 100%;
+		background-color: darkgoldenrod;
+	}
+	.portrait #audienceTxb{display: none}
+	.portrait .sendArea .editor{
+		width: 70%;
+    	vertical-align: top;
+    	background-color: white;
+    	display: inline-block;
+    	padding: calc(5pt - 2px);
+    	border: 1px solid gray;
+    	min-height: 25px;
+    	font-size: 25px;
+    	text-align: left
+    }
+	.portrait .sendArea img.blue{width:7%; height: 25px;vertical-align:middle;}
+	.portrait #attachArea>ul>li>img{width: 30px; height: 30px;border: 2px solid royalblue;padding: 5px;background-color: dodgerblue;}
+	.portrait #attachBoard img{width: 30px;height: 30px;object-fit: scale-down;}
+	.portrait .messengerAppArea{width: 100vh;border-left: 1px solid silver;text-align: center;vertical-align: top}
+	.portrait .flagIcon:before{background-position-x: -372px !important;}
+	.portrait .editIcon:before{background-position-x: -275px !important;}
+	.portrait .deleteIcon:before{background-position-x: -83px !important;}
+	.portrait .copyIcon:before{background-position-x: 10px !important;}
+	.portrait .unsendIcon:before{background-position-x: -179px !important;}
+
+	.landscape #msgAudPar
+	{    
+		display: inline-block;
+		font-size: 1em;
+		padding: 0.2em;
+		border: 1px solid white;
+		border-radius: 0.3em;
+		vertical-align: middle;
+		margin-top:0.2em;
+		float: left;
+		margin-left: 0.3em;
+		height: 1em;
+		line-height: 100%;
+		background-color: darkgoldenrod;
+	}
+	.landscape .sendArea .editor{width: calc(100% - 90px);vertical-align:middle;background-color:white;display: inline-block;padding:4px;border:1px solid gray;min-height: 1em;text-align: left}
+	.landscape .sendArea img.blue{width: 15px; height: 15px;vertical-align:middle;}
+	.landscape #attachArea>ul>li>img{width: 30px; height: 30px;border: 2px solid royalblue;padding: 5px;background-color: dodgerblue;}
+	.landscape #attachBoard img{width: 25px;height: 25px;object-fit: scale-down;}
+	.landscape .messengerAppArea{width: 70%;border-left: 1px solid silver;text-align: center;vertical-align: top}
+	.landscape .flagIcon:before{background-position-x: -74px !important;}
+	.landscape .editIcon:before{background-position-x: -55px !important;}
+	.landscape .deleteIcon:before{background-position-x: -16px !important;}
+	.landscape .copyIcon:before{background-position-x: 2px !important;}
+	.landscape .unsendIcon:before{background-position-x: -35px !important;}
+
+.convList,.menuList{list-style: none;}
+.menuList[top]{margin:-5px; background-color: #042066;border-radius:0px 0px 100% 20%;padding:10px;padding-bottom: 20px;}
+.menuList li{cursor: pointer;margin:var(--size20) auto;}
+
+.flagIcon:before,.editIcon:before,.deleteIcon:before,.copyIcon:before,.unsendIcon:before
+{background: url(../../res/image/png/menu-icons.png);background-repeat: no-repeat;background-size: 600%;}
+
+.itMessage .msg-status:after{content:'✓';font-size:1em;margin-left:1em;font-weight: bold}
+.itMessage .msg-status.received:after{content:'✓✓' !important;}
+.itMessage .msg-status.seen:after{content:'✓✓' !important;color:dodgerblue !important;}
+
+.myMessage .msg-status:before{content:'✓';font-size:1em;margin-right:1em;font-weight: bold}
+.myMessage .msg-status.received:before{content:'✓✓' !important;}
+.myMessage .msg-status.seen:before{content:'✓✓' !important;color:dodgerblue !important;}

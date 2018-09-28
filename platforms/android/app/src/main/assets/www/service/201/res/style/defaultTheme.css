@@ -1,0 +1,59 @@
+*{padding:0px;margin:0px;}
+.Board{border:10px solid brown;display: inline-block;background-color: darkgoldenrod;user-select: none;position: relative;}
+.OpponentCemetry{width:20vh;height:93vh;display:inline-block;background-color:silver;margin:0px;padding:1vh;vertical-align: top;background-image: url('../image/jpg/wood-texture.jpg')}
+.MyCemetry{width:20vh;height:93vh;display:inline-block;background-color:silver;margin:0px;padding:1vh;vertical-align: top;background-image: url('../image/jpg/wood-texture.jpg')}
+.BoardBody{margin-top:0.5vh;width:92vh;height:95vh;display:inline-block;background-color:gray;margin:0px;padding:0vh;vertical-align: top}
+.BoardBody .chRow{clear:both;}
+.BoardBody .cell{width:11vh ;height:11vh;display: inline-block;background-size: 100%;/*float:left;*/}
+.BoardBody .cell[color="black"]{background-image:url('../image/jpg/blue-granite.jpg');}
+.BoardBody .cell[color="white"]{background-image:url('../image/jpg/white-marmar.jpg');}
+.BoardBody .Adrs{display: inline-block;font-weight: bold;vertical-align: middle;text-align: center;color:white;width: 2vh;height:7vh;/*float: left;*/font-size: 3vh;padding-top:4vh;}
+.BoardBody .noneAdrs{display: inline-block;font-weight: bold;vertical-align: middle;text-align: center;color:white;width: 2vh;/*float: left*/;font-size: 3vh;line-height: 3vh;height: 3vh}
+.BoardBody .Area{width:11vh ;display: inline-block;/*float:left;*/font-weight: bold;color:white;text-align: center;font-size: 3vh}
+
+/*white client*/
+.Board[clientColor="0"] .cell{float:left;}
+.Board[clientColor="0"] .Adrs{float:left;}
+.Board[clientColor="0"] .noneAdrs{float:left;}
+.Board[clientColor="0"] .Area{float:left;}
+
+/*black client*/
+.Board[clientColor="1"] .cell{float:right;}
+.Board[clientColor="1"] .Adrs{float:right;}
+.Board[clientColor="1"] .noneAdrs{float:right;}
+.Board[clientColor="1"] .Area{float:right;}
+
+/*.BoardBody .cell[color="white"][way="1"]{box-shadow: 0px 0px 50px #36369F inset}
+.BoardBody .cell[color="black"][way="1"]{box-shadow: 0px 0px 50px #6E6ECD inset}*/
+.BoardBody .cell[way="1"]{box-shadow: 0px 0px 70px blue inset;cursor: pointer;}
+.BoardBody .cell[way="2"]{box-shadow: 0px 0px 70px red inset;cursor: pointer;}
+.BoardBody .cell[way="3"]{box-shadow: 0px 0px 70px gold inset;cursor: pointer;}
+
+.Piece{height: 10vh;width: 10vh;margin:0.5vh;background-size:contain;background-repeat: no-repeat;cursor: pointer;border-radius: 20%;box-shadow: 0px 0px 0px white inset;transition: box-shadow 0.3s,height 0.4s,width 0.4s}
+.Piece.moving{position: absolute;}
+.Piece.solidMoving{transition: all 0.3ms}
+.BoardBody .cell[color="black"] .Piece:hover{box-shadow: 0px 0px 30px white inset;}
+.BoardBody .cell[color="white"] .Piece:hover{box-shadow: 0px 0px 30px blue inset;}
+.Piece[type="1"][color="black"]{background-image: url(../image/png/pieces/b-pawn.png);}
+.Piece[type="2"][color="black"]{background-image: url(../image/png/pieces/b-rook.png);}
+.Piece[type="3"][color="black"]{background-image: url(../image/png/pieces/b-knight.png);}
+.Piece[type="4"][color="black"]{background-image: url(../image/png/pieces/b-bishop.png);}
+.Piece[type="5"][color="black"]{background-image: url(../image/png/pieces/b-queen.png);}
+.Piece[type="6"][color="black"]{background-image: url(../image/png/pieces/b-king.png);}
+
+.Piece[type="1"][color="white"]{background-image: url(../image/png/pieces/w-pawn.png);}
+.Piece[type="2"][color="white"]{background-image: url(../image/png/pieces/w-rook.png);}
+.Piece[type="3"][color="white"]{background-image: url(../image/png/pieces/w-knight.png);}
+.Piece[type="4"][color="white"]{background-image: url(../image/png/pieces/w-bishop.png);}
+.Piece[type="5"][color="white"]{background-image: url(../image/png/pieces/w-queen.png);}
+.Piece[type="6"][color="white"]{background-image: url(../image/png/pieces/w-king.png);}
+
+.Piece[danger="1"]{box-shadow: 0px 0px 50px red inset}
+
+#piecesSelector{display: block;position: absolute;top:0px;left:0px;width: 100%;height: 100%;background:rgba(33,33,33,0.5);}
+#piecesPan{border-radius: 20px;border:4px solid gold;box-shadow: 0px 0px 20px yellow;position:absolute;height:11vh;width:44vh; top:calc(50% - 5vh);left:calc(50% - 22vh);background-image: url('../image/jpg/wood-texture.jpg');}
+#piecesPan .Piece{float:left;}
+#piecesSelector[status="open"]{display: block}
+#piecesSelector[status="close"]{display: none}
+
+.OpponentCemetry .Piece, .MyCemetry .Piece{width:4vw !important;height: 4vw !important;display: inline-block;margin:0px;}

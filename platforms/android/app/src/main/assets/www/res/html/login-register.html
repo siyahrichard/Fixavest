@@ -1,0 +1,89 @@
+<html><head>
+	<link rel="stylesheet" type="text/css" href="http://cdn.netor.ir/?type=css&addons=jetframe,spopup"/>
+	<link rel="stylesheet" type="text/css" href="../../res/css/home3-1.css"/>
+	<script src="http://jointab.com/core/HomeCore.js" type="text/javascript"></script>
+	<script src="http://jointab.com/core/User.js" type="text/javascript"></script>
+	<script type="text/javascript" src="http://cdn.netor.ir/?type=js&addons=jetframe,jetapp,networktransfer,popup,cloudfile"></script>
+	<script src="../../res/lang/en/countries.js" type="text/javascript"></script>
+</head><body>
+
+<div>
+	<div id="viewBackground" style="background-color: #D2E1FD">
+		<img class="fullLogo" id="mainLogo" src="../../res/image/png/logo.png" onclick="onWantNothing()" />
+	</div>
+	<div id="actionBar">
+
+        <button class="green btn" onclick="onWantLogin()">Login</button>
+		&nbsp;|&nbsp;
+        <button class="orange btn" onclick="onWantRegister()">Register</button>
+    </div>
+	<div id="login-dialog" class="formbox userForm hide">
+	        <div id="userLoginField">
+	            <input type="text" id="loginNameTxb" name="loginNameTxb" onchange="HomeCore.analyzeLoginName()" placeholder="Username, email or phone" onkeypress="HomeCore.onKeyPress(event);"/>
+	        </div>
+	        <div id="phoneLoginField" class="hide">
+				<select id="countryNameL" onchange="HomeCore.onCountrySet('title','L');"></select>
+				<select inline id="countryCodeL"  onchange="HomeCore.onCountrySet('code','L');"></select>
+	            <input inline type="text" id="phoneTxbL" name="phoneTxbL" onchange="HomeCore.analyzeLoginName()" placeholder="Phone" onkeypress="HomeCore.onKeyPress(event);"/>
+	        </div>
+	        <div>
+	            <input type="password" id="passwordTxb" name="passwordTxb" placeholder="Password" onkeypress="HomeCore.onKeyPress(event);"/>
+	        </div>
+	        <div class="h-setbox" style="margin-top:3vh">
+	            <button class="gold btn" onclick="User.login()">Login</button>
+	            <button class="red btn" style="text-decoration: none" href="tools/resetpassword">Forget pass?</button>
+	        </div>
+	    </div>
+	    <div id="register-dialog" class="formbox userForm hide">
+			<div>One of Email or Phone Number is required.</div>
+			<div>
+	            <input type="text" id="userTxb" name="userTxb" placeholder="Username"/>
+	        </div>
+	        <div>
+	            <input type="text" id="emailTxb" name="emailTxb" placeholder="Email"/>
+	        </div>
+			<div>
+				<select id="countryName" onchange="HomeCore.onCountrySet('title');"></select>
+				<select inline id="countryCode"  onchange="HomeCore.onCountrySet('code');"></select>
+	            <input inline type="text" id="phoneTxb" name="phoneTxb" placeholder="Phone number"/>
+	        </div>
+	        <div>
+	            <input type="password" id="pass1Txb" name="pass1Txb" placeholder="Password"/>
+	        </div>
+	        <div>
+	            <input type="password" id="pass2Txb" name="pass2Txb" placeholder="Confrim Password"/>
+	        </div>
+	        <div class="h-setbox" style="margin-top:3vh">
+	            <button class="orange btn" onclick="User.register()">Register</button>
+	        </div>
+	    </div>
+</div>
+<script type="text/javascript">Jet.config();</script>
+<script type="text/javascript">
+	if(typeof(jsClientApp)=="undefined")jsClientApp=true; //define this page is js app
+	function onWantLogin(){
+		var logo=document.getElementById('mainLogo');
+		logo.setAttribute("class","miniLogo");
+		_("#login-dialog").removeClass('hide');
+		_("#register-dialog").addClass('hide');
+		_("#actionBar").attr("style","bottom:5vh");
+		HomeCore.currentFragment='login';
+	}
+	function onWantRegister(){
+		var logo=document.getElementById('mainLogo');
+		logo.setAttribute("class","miniLogo");
+		_("#register-dialog").removeClass('hide');
+		_("#login-dialog").addClass('hide');
+		_("#actionBar").attr("style","bottom:5vh");
+		HomeCore.currentFragment='register';
+		HomeCore.loadCountryCodes();
+	}
+	function onWantNothing(){
+		var logo=document.getElementById('mainLogo');
+		logo.setAttribute("class","fullLogo");
+		_("#register-dialog").addClass('hide');
+		_("#login-dialog").addClass('hide');
+		_("#actionBar").attr("style","");
+	}
+</script>
+</body></html>

@@ -1,0 +1,22 @@
+:root{
+	--size20:20px;
+	--size10:10px;
+	--size5:5px;
+	--size2:2px;
+}	
+.backDialog{position: fixed; top:0px; bottom:0px; left:0px; right:0px;background-color:rgba(180,180,180,0.1);z-index:20000;overflow: visible}
+/*.backDialog .popupDialog{position: absolute;background-color: white;border:1px solid silver;}*/
+.backDialog ul{padding:0px;margin:0px;width: 100%;height: 100%;list-style: none}
+.backDialog li{cursor: pointer;border-bottom: 1px solid #f1faf1;white-space:nowrap}
+.backDialog li:hover{background-color: #447db7; color:white}
+/*.backDialog li[class="selected"]{background-color: #447db7; color:white}*/
+
+
+.popupDialog{position: absolute;background-color: white;border:1px solid silver;padding: var(--size10);border-radius: var(--size5);box-shadow: var(--size2) var(--size2) var(--size5) gray;}
+.popupDialog ul{padding:0px;margin:0px;width: 100%;height: 100%;list-style: none}
+.popupDialog li{cursor: pointer;color:#353535;white-space:nowrap}
+.popupDialog li span{padding:var(--size5) var(--size10);display: inline-block;}
+.popupDialog li:not(:last-child){border-bottom: 1px solid silver;}
+.popupDialog li:hover{background-color:dodgerblue /*#447db7*/; color:white}
+.popupDialog li:before{width: 0.9em;content:'.';color:transparent;display: inline-block;background-position: center;}
+.popupDialog li[class="selected"]{background-color: #447db7; color:white}
