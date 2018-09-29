@@ -63,10 +63,11 @@ Libre.sidebar.visible=function(visible)
 		_("#sidebar").attr("class","sidebar sidebarFwork");
 		_("#workPan").attr("class","workPanFwork");
 	}
+	/*var rect=_("#sidebarBtn").source.getBoundingClientRect();
 	_("#sidebarBtn").attr('src',Libre.images[btnImage]);
-	Libre.log("x: "+_("#sidebarBtn").source.style.width
-		+"  y: "+_("#sidebarBtn").source.style.height
-		);
+	Libre.log("x: "+rect.width
+		+"  y: "+rect.height
+		);*/
 };
 Libre.sidebar.pined=false;
 Libre.sidebar.pin=function(a){

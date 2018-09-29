@@ -32,6 +32,13 @@ function __init__(){
         FollowContact.parseUid(FollowContact.uid,true)).url;
         FollowContact.read();
         UserInfo.load();
+        //Device
+        if(typeof(device)!="undefined"){
+          if(device.uuid){
+            Libre.log('updating device info...')
+            Device.cordova(Messenger.currentUID); //cordova jobs by jointab device
+          }
+        }
         LU.login=true;
       }
   });
@@ -72,6 +79,7 @@ function __init__(){
   NetworkTransfer.bridge="client/Bridge/go/";
   NetworkTransfer.bridgers.push(/client\/FollowContact/);
   NetworkTransfer.bridgers.push(/client\/profile\/search/);
+  NetworkTransfer.bridgers.push(/client\/Device\//);
 
   //CUAD commands
   Bon.cmd['shareMessage']=Conversation.cuadShareMessage;
@@ -129,7 +137,7 @@ Libre.onOrientation=function(e){
 
 Libre.logs=[];
 Libre.logIndex=0;
-Libre.logDelay=3000;
+Libre.logDelay=1500;
 Libre.log=function(txt){
   Libre.logs[Libre.logs.length]=txt;
   console.log(txt); //live show on console logs

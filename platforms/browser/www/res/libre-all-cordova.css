@@ -98,15 +98,15 @@ html,body{min-height: 100%;overflow-x: hidden;}
 .portrait #statusPan {display: none;}
 /*desktop/landscape specifics*/
 .landscape #mainMenuPan{height:31px;}
-.landscape .workPanNormal{top:31px;left:25vw;right:0px;bottom:15px;}
+.landscape .workPanNormal{top:31px;left:26vw;right:0px;bottom:15px;}
 .landscape .workPanFwork{top:31px;bottom:15px;}
-.landscape .sidebar{transition: all 0.3s;top:31px;width:25vw;bottom:25px;padding:5px;}
+.landscape .sidebar{transition: all 0.3s;top:31px;width:25vw;bottom:25px;padding:0.5vw;}
 .landscape .sidebarNormal{left:0px;}
 .landscape .sidebarFwork{position:absolute;left:-27vw;overflow: hidden;}
 .landscape #mainMenuPan #menuItemList>li{float:left; margin-left:3px;font-size:15px;}
 .landscape #mainMenuPan #menuItemTools{margin-right: 10px}
 .landscape #mainMenuPan #menuItemTools li{margin-left:3px;margin-top:3px}
-.landscape #mainMenuPan li img{height: 20px !important;width: 20px !important;object-fit: cover !important;}
+.landscape #mainMenuPan li img{height: 20px;width: 20px;object-fit: cover;}
 .landscape #searchPan{border-radius: 5px;}
 .landscape #searchPan input{margin:1px 10px}
 .landscape .dialogBox{padding:10px;border-radius:5px; border:1px solid white;}

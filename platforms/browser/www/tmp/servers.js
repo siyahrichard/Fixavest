@@ -15,3 +15,4 @@ UniversalServer.list[10]=new UniversalServer('jtahtcard',4,'http://contact.abrap
 UniversalServer.list[11]=new UniversalServer('aa',5,'http://localhost/market/');
 UniversalServer.list[12]=new UniversalServer('jtaht',5,'http://localhost/market/');
 UniversalServer.list[13]=new UniversalServer('aa',5,'http://localhost/market/');
+UniversalServer.list[14]=new UniversalServer('jtaht',6,'http://device.abrapp3.ml/');

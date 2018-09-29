@@ -850,14 +850,14 @@ Conversation.start=function(uid)
 				var title=uid;  var uinfo=null;
 				if((uinfo=UserInfo.list[uid])){
 					var picture=CloudFile.getUrlByCode(uinfo.picture);
-					if(!picture)picture="res/image/png/conversation.png";
+					if(!picture)picture="res/image/png/user.png";
 					var conv=new Conversation(uid,uinfo.title,picture);
 					Conversation.configMessenger(conv);
 					Conversation.save(conv);
 				}else{
 					UserInfo.get(uid,function(e){
 						var picture=CloudFile.getUrlByCode(uinfo.picture);
-						if(!picture)picture="res/image/png/conversation.png";
+						if(!picture)picture="res/image/png/user.png";
 						var conv=new Conversation(e.uid,e.title,picture);
 						Conversation.configMessenger(conv);
 						Conversation.save(conv);
@@ -1017,7 +1017,7 @@ ConvSetting.config=function()
 {
 	Jet.App.register('ConvSetting',ConvSetting);
 	Jet.App.form.ConvSetting={};
-	Jet.App.form.ConvSetting[1]="<div class=\"ContactSetting\"><img id=\"profilePic\"/></div><table><tr><td>Security Key</td><td><input class=\"textbox\" onchange=\"ConvSetting.onChangeKey(event);\" value=\"%skey%\"/></td></tr><tr><td></td><td><hr/></td></tr><tr><td>Storage</td><td><button class=\"blue btn\" onclick=\"Conversation.clearMessages('%uid%');\"> Delete messages </button>&nbsp; &nbsp;<button class=\"red btn\" onclick=\"Conversation.clearMessages('%uid%');Conversation.remove('%uid%');\"> Delete the conversation </button></td></tr></table>";
+	Jet.App.form.ConvSetting[1]="<div class=\"ContactSetting\"><img id=\"profilePic\" onerror=\"ConvSetting.onErrorImage(event)\"/></div><table><tr><td>Security Key</td><td><input class=\"textbox\" onchange=\"ConvSetting.onChangeKey(event);\" value=\"%skey%\"/></td></tr><tr><td></td><td><hr/></td></tr><tr><td>Storage</td><td><button class=\"blue btn\" onclick=\"Conversation.clearMessages('%uid%');\"> Delete messages </button>&nbsp; &nbsp;<button class=\"red btn\" onclick=\"Conversation.clearMessages('%uid%');Conversation.remove('%uid%');\"> Delete the conversation </button></td></tr></table>";
 	Jet.App.form.ConvSetting[2]="";
 	
 	Jet.App.form.ConvSetting.userOperation="";
@@ -1053,6 +1053,10 @@ ConvSetting.bind=function(o,ctrl,view)
 		
 		_("#profilePic").attr('src',Conversation.listo[o.uid].picture);
 	}
+};
+ConvSetting.onErrorImage=function(e)
+{
+	e.target.parentElement.removeChild(e.target);//remove image box if unable to load image
 };
 
 function CMOption()

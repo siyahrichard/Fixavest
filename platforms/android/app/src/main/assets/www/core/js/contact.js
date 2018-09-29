@@ -562,6 +562,7 @@ ContactCheck.to_save=null;
 ContactCheck.loadCallback=null;
 ContactCheck.refreshing=false;
 ContactCheck.uidList=null;
+ContactCheck.watched=null;
 
 
 ContactCheck.getDB=function()
@@ -576,8 +577,14 @@ ContactCheck.onUpgradeNeeded=function(e)
 };
 ContactCheck.loadContacts=function()
 {
+	if(ContactCheck.watched===0)return; //Watchdog stoped the process tree
+	ContactCheck.watched=Date.now();
+	
 	Libre.log('Reading device contacts...');
 	var onSuccess=function(contacts){
+		if(ContactCheck.watched===0)return; //Watchdog stoped the process tree
+		ContactCheck.watched=Date.now();
+		
 	    if(!ContactCheck.checkList)ContactCheck.checkList=[];//create if not exists
 	    ContactCheck.to_save=[];
 	    var country_code=localStorage.country;
@@ -597,7 +604,10 @@ ContactCheck.loadContacts=function()
 	    ContactCheck.run();
 	};
 	var onError=function(e){
-		alert('unable to access contacts');
+		if(ContactCheck.watched===0)return; //Watchdog stoped the process tree
+		ContactCheck.watched=Date.now();
+		
+		Libre.logi('Unable to access contacts');
 		ContactCheck.forward();
 	};
 	
@@ -611,6 +621,8 @@ ContactCheck.loadContacts=function()
 };
 ContactCheck.load=function()
 {
+	if(ContactCheck.watched===0)return; //Watchdog stoped the process tree
+	ContactCheck.watched=Date.now();
 	var req=ContactCheck.getDB().transaction(['contactcheck'],'readonly').objectStore('contactcheck').openCursor();
 	ContactCheck.listo={};
 	ContactCheck.uidList=[];
@@ -631,6 +643,9 @@ ContactCheck.load=function()
 };
 ContactCheck.run=function()
 {
+	if(ContactCheck.watched===0)return; //Watchdog stoped the process tree
+	ContactCheck.watched=Date.now();
+	
 	Libre.log('Checking...');
 	var list=[];
 	var checkList=ContactCheck.checkList;
@@ -675,6 +690,9 @@ ContactCheck.forward=function()
 };
 ContactCheck.runBack=function(res)
 {
+	if(ContactCheck.watched===0)return; //Watchdog stoped the process tree
+	ContactCheck.watched=Date.now();
+	
 	var ls=JSON.parse(res);
 	Libre.work.show(res);
 	var o=null; var to_save=[];
@@ -706,6 +724,9 @@ ContactCheck.save=function(o)
 };
 ContactCheck.config=function()
 {
+	//configure watchdog
+	ContactCheck.watched=Date.now();
+	ContactCheck.watchdog(); //start watchdog
 	ContactCheck.loadCallback=null;
 	ContactCheck.load();
 };
@@ -732,5 +753,15 @@ ContactCheck.refresh=function()
 			ContactCheck.loadCallback=ContactCheck.refresh;
 			ContactCheck.load();
 		}
+	}
+};
+ContactCheck.watchdog=function()
+{
+	if(ContactCheck.watched<(Date.now()-10000)){
+		Libre.log('un-hanging by watch dog, a problem with device or internet connection.');
+		ContactCheck.forward();
+		ContactCheck.watched=0;
+	}else{
+		setTimeout(ContactCheck.watchdog,10000);
 	}
 };
