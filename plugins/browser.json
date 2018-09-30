@@ -39,6 +39,9 @@
     },
     "cordova-plugin-contacts": {
       "PACKAGE_NAME": "com.fixavest.flask"
+    },
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "com.fixavest.flask"
     }
   },
   "dependent_plugins": {

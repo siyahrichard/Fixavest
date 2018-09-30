@@ -108,4 +108,5 @@
     <engine name="browser" spec="~5.0.4" />
     <plugin name="cordova-plugin-device" spec="~1.1.6" />
     <plugin name="cordova-plugin-contacts" spec="^3.0.1" />
+    <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
 </widget>
