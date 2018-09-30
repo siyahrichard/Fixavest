@@ -42,11 +42,11 @@
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
-    <name>Fixavest</name>
+    <name>Flask</name>
     <description>
-        Fixavest Financial Messenger
+        Flask Financial Messenger
     </description>
-    <author email="support@phonegap.com" href="http://phonegap.com">
+    <author email="support@fixavest.com" href="http://fixavest.com">
         Fixavest
     </author>
     <content src="index.html" />

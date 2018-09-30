@@ -24,7 +24,9 @@ function __init__(){
   LU.login=false; LU.startedMessenger=false; LU.loadDeviceContact=false;//to avoid multiple configuration
   document.body.addEventListener("login",function(e){
       if(!LU.login){
-        Libre.log('login...')
+        Libre.log('login...');
+        _("#splash").addClass('hide');//hide splash screen after login
+        Messenger.onHome();//show home dialog
         Messenger.currentUID=CAuth.activeObject.uid;
         FollowContact.uid=Messenger.currentUID;
         UserInfo.getDB(); //connect to database
@@ -61,6 +63,7 @@ function __init__(){
       ConvSetting.config();
       //var msg=new Messenger(_("#workPan").source);
       Conversation.install();
+      UserInfo.get(Messenger.currentUID,Messenger.showMeOnSidebar);
       LU.startedMessenger=true;
     }
   });

@@ -146,7 +146,11 @@ input,*[contenteditable="true"]{user-select: all}
 	.landscape .unsendIcon:before{background-position-x: -35px !important;}
 
 .convList,.menuList{list-style: none;}
+.menuList[top]{margin:-5px; background-color: #042066;border-radius:0px 0px 100% 20%;padding:10px;padding-bottom: 20px;}
 .menuList li{cursor: pointer;margin:var(--size20) auto;}
+#profilePan {margin-bottom: 30px}
+#profilePan img{height: 70px;width: 70px;object-fit: cover;vertical-align: middle;border-radius: 10px; border:5px solid white;}
+#profilePan span{text-align: middle; margin-left: 20px;}
 
 .flagIcon:before,.editIcon:before,.deleteIcon:before,.copyIcon:before,.unsendIcon:before
 {background: url(../../res/image/png/menu-icons.png);background-repeat: no-repeat;background-size: 600%;}

@@ -656,6 +656,25 @@ Messenger.isShowing=function(msg)
 	}
 	return false;
 };
+Messenger.onHome=function()
+{
+	FLHome.show(_('#workPan').source);
+};
+Messenger.onSetting=function()
+{
+	FLSetting.show(_('#workPan').source);
+};
+Messenger.onFlag=function()
+{
+	Libre.log('Flags are not ready yet.');
+};
+Messenger.showMeOnSidebar=function(uinfo)
+{
+	var picture=CloudFile.getUrlByCode(uinfo.picture);
+	if(!picture)picture="res/image/png/user.png";
+	_("#profileImg").attr('src',picture);
+	_("#profileTitle").value(uinfo.title);
+};
 
 function Conversation(uid,title,picture)
 {

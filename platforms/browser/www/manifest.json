@@ -1,10 +1,10 @@
 {
   "background_color": "#FFF",
   "display": "standalone",
-  "name": "Fixavest",
-  "short_name": "Fixavest",
+  "name": "Flask",
+  "short_name": "Flask",
   "version": "com.fixavest.flask",
-  "description": "Fixavest Financial Messenger",
+  "description": "Flask Financial Messenger",
   "author": "Fixavest",
   "icons": [],
   "start_url": "index.html"
