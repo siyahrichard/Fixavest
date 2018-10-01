@@ -81,7 +81,7 @@ html,body{min-height: 100%;overflow-x: hidden;}
 /*mobile/portrait specifics*/
 .portrait #mainMenuPan{height:50px;}
 .portrait .workPanNormal{top:50px;left:0px;right:0px;bottom:0px;overflow-y: scroll;}
-.portrait .workPanFwork{top:50px;bottom:0px;overflow-y: scroll;}
+.portrait .workPanFwork{top:50px;bottom:0px;overflow-y: auto;}
 .portrait .sidebar{transition: left 0.1s,padding 0.5s;top:50px;bottom:0px;right:0px;width:80vw;}
 .portrait .sidebarNormal{left:0px;padding:5px;}
 .portrait .sidebarFwork{left: -80vw;padding:0em;}

@@ -10,7 +10,7 @@ function __init__(){
   Libre.menu.clearItems();
   Libre.menu.clearTools();
   Libre.menu.addItem("<li onclick=\"Libre.sidebar.visible();\"><img id=\"sidebarBtn\" src=\"res/images/svg/white-menu.svg\"/></li>");
-  Libre.menu.addItem("<li onclick=\"Libre.sidebar.pin();\"><img id=\"pinBtn\" src=\"res/images/svg/white-pin.svg\"/></li>");
+  Libre.menu.addItem("<li id=\"pinPar\" onclick=\"Libre.sidebar.pin();\"><img id=\"pinBtn\" src=\"res/images/svg/white-pin.svg\"/></li>");
   Libre.menu.addItem("<li class=\"hide\" id=\"closeAppBtn\" onclick=\"Messenger.closeApp()\"><img id=\"closeAppBtn\" src=\"res/images/png/close150.png\"/></li>");
 
   //Libre.menu.addTool("<li onclick=\"Libre\"><img id=\"settingsBtn\" src=\"res/images/svg/white-settings.svg\"/></li>");

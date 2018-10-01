@@ -306,12 +306,16 @@ Messenger.activeAppId=null;
 Messenger.showingHolder=null;
 
 
+Messenger.setAvailable=function(availMode)
+{
+	
+};
 Messenger.config=function()
 {
 	Jet.App.register('Messenger',Messenger);
 	Jet.App.form.Messenger={};
 	//Jet.App.form.Messenger[1]="<div class=\"messageArea\" id=\"messageArea%index%\"></div><div class=\"sendArea h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\"/><input id=\"inputTxb%index%\" onkeypress=\"Messenger.list[%index%].checkInput(event)\"/><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div>";
-	Jet.App.form.Messenger[1]="<table style=\"height: 100%;width: 100%\"><tr><td style=\"word-break:break-all;vertical-align: top;\"><div class=\"messengerPan infobox\"><div class=\"messageArea\" id=\"messageArea%index%\"></div></div><div class=\"sendArea h-setbox\"><div id=\"attachArea\" class=\"hide\"><ul><li><img src=\"res/image/png/call.png\"/></li><li onclick=\"Messenger.buildEmojies();\"><img src=\"res/image/png/emojies/1F600.png\"/></li><li onclick=\"Messenger.buildApps();\"><img src=\"res/image/png/app.png\"/></li></ul><div id=\"attachBoard\"></div></div><div class=\"h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\" onclick=\"_('#attachArea').toggleClass('hide');\"/><div contenteditable=\"true\" class=\"editor\" id=\"inputTxb\" onkeyup=\"Messenger.list[%index%].checkInput(event)\"></div><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div></div></div></td><td class=\"messengerAppArea hide\"></td></tr></table>";
+	Jet.App.form.Messenger[1]="<table style=\"height: 100%;width: 100%\" cellspacing=\"0px\"><tr><td style=\"word-break:break-all;vertical-align: top;\"><div class=\"messengerPan infobox\"><div class=\"messageArea\" id=\"messageArea%index%\"></div></div><div class=\"sendArea h-setbox\"><div id=\"attachArea\" class=\"hide\"><ul><li><img src=\"res/image/png/call.png\"/></li><li onclick=\"Messenger.buildEmojies();\"><img src=\"res/image/png/emojies/1F600.png\"/></li><li onclick=\"Messenger.buildApps();\"><img src=\"res/image/png/app.png\"/></li></ul><div id=\"attachBoard\"></div></div><div class=\"h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\" onclick=\"_('#attachArea').toggleClass('hide');\"/><div contenteditable=\"true\" class=\"editor\" id=\"inputTxb\" onkeyup=\"Messenger.list[%index%].checkInput(event)\"></div><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div></div></div></td><td class=\"messengerAppArea hide\"></td></tr></table>";
 	Jet.App.form.Messenger[2]="";
 	
 	
@@ -478,6 +482,10 @@ Messenger.receive=function()
 	}
 	LU.globalCallback=Messenger.receiveBack;
 	CMessage.receive(null,Messenger.lastMoment,"",Messenger.clearOnRead);
+};
+Messenger.install=function()
+{
+	
 };
 Messenger.buildEmojies=function()
 {
@@ -675,6 +683,12 @@ Messenger.showMeOnSidebar=function(uinfo)
 	_("#profileImg").attr('src',picture);
 	_("#profileTitle").value(uinfo.title);
 };
+Messenger.onLogout=function()
+{
+	if(confirm('are you sure to logout?')){
+		CAuth.logout(function(){window.location.href='login.html';});
+	}
+};
 
 function Conversation(uid,title,picture)
 {
@@ -830,6 +844,10 @@ Conversation.buildForm=function(o,view,par)
 		_("#convCount"+o.uid).addClass('hide');
 	}
 	return c;
+};
+Conversation.listItems=function(res)
+{
+	
 };
 Conversation.start=function(uid)
 {
@@ -1091,6 +1109,10 @@ function CMOption()
 CMOption.table='cmopt';
 
 
+CMOption.install=function()
+{
+	
+};
 CMOption.update=function(ids,option,uid)
 {
 	var n=new NetData();
@@ -1114,11 +1136,19 @@ function CMStatus()
 CMStatus.table='cmstat';
 
 
+CMStatus.install=function()
+{
+	
+};
 CMStatus.update=function(ids,option,timing)
 {
 	var n=new NetData();
 	n.url="client/CMStatus/update/";
 	n.add('ids',JSON.stringify(ids),true).add('option',option).commit();
+};
+CMStatus.perform=function(msgs)
+{
+	
 };
 
 function ConvStat(uid,conversation,receive,seen)
@@ -1136,6 +1166,10 @@ this.uid=uid?uid:null; this.conversation=conversation?conversation:0; this.lastR
 ConvStat.table='conestat';
 
 
+ConvStat.install=function()
+{
+	
+};
 ConvStat.status=function(uid,conversation,callback)
 {
 	var n=new NetData();n.onerror=null;

@@ -10,7 +10,7 @@ html,body{min-height: 100%;overflow-x: hidden;}
 	line-height:21px;
 	background-color:#042066;
 	color:white;
-
+	overflow: hidden;
 }
 #extraPan
 {
@@ -28,6 +28,7 @@ html,body{min-height: 100%;overflow-x: hidden;}
 	/*background:linear-gradient(to bottom,#3F7FBF,#267FD8);*/
 }
 /*.sidebarFwork *{display: none}*/
+#sidebarBtn{transition: transform 0.2s}
 .visibleFloatbar
 {
 	background-color: gray;
@@ -80,18 +81,18 @@ html,body{min-height: 100%;overflow-x: hidden;}
 /*mobile/portrait specifics*/
 .portrait #mainMenuPan{height:50px;}
 .portrait .workPanNormal{top:50px;left:0px;right:0px;bottom:0px;overflow-y: scroll;}
-.portrait .workPanFwork{top:50px;bottom:0px;overflow-y: scroll;}
-.portrait .sidebar{transition: left 0.5s,padding 0.5s;top:50px;bottom:0px;right:0px;width:80vw;}
+.portrait .workPanFwork{top:50px;bottom:0px;overflow-y: auto;}
+.portrait .sidebar{transition: left 0.1s,padding 0.5s;top:50px;bottom:0px;right:0px;width:80vw;}
 .portrait .sidebarNormal{left:0px;padding:5px;}
 .portrait .sidebarFwork{left: -80vw;padding:0em;}
-.portrait #pinBtn{display: none;position: absolute; top: -200pt}
+.portrait #pinPar{display: none;position: absolute; top: -200pt}
 .portrait #projectBtn{display: none;position: absolute; top: -200pt}
-.portrait #mainMenuPan #menuItemList>li{float:right;margin:3px;font-size:15px;}
+.portrait #mainMenuPan #menuItemList>li{float:left;margin:3px;font-size:15px;}
 .portrait #mainMenuPan #menuItemTools li{margin-right:3px;margin-top:3px;}
 .portrait #mainMenuPan li img{height: 35px;height: 35px;object-fit: cover;}
 .portrait #searchPan{ border-radius: 5px;height: 35px}
 .portrait #searchPan input{margin:2.5px 10px;width: 30vw;transition: width 0.3s;font-size:25px;}
-.portrait #searchPan input:focus{width:40vw;}
+.portrait #searchPan input:focus{width:60vw;}
 .portrait .dialogBox{padding:20px;border-radius:5px; border:2px solid white;}
 .portrait .dialogBox p{margin: 0px auto 20px auto;}
 .portrait .dialogBox button{margin:1px auto 0px auto;}
@@ -100,7 +101,7 @@ html,body{min-height: 100%;overflow-x: hidden;}
 .landscape #mainMenuPan{height:31px;}
 .landscape .workPanNormal{top:31px;left:26vw;right:0px;bottom:15px;}
 .landscape .workPanFwork{top:31px;bottom:15px;}
-.landscape .sidebar{transition: all 0.3s;top:31px;width:25vw;bottom:25px;padding:0.5vw;}
+.landscape .sidebar{transition: all 0.1s;top:31px;width:25vw;bottom:25px;padding:0.5vw;}
 .landscape .sidebarNormal{left:0px;}
 .landscape .sidebarFwork{position:absolute;left:-27vw;overflow: hidden;}
 .landscape #mainMenuPan #menuItemList>li{float:left; margin-left:3px;font-size:15px;}

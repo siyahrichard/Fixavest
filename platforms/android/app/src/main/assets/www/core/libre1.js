@@ -52,22 +52,20 @@ Libre.sidebar.visible=function(visible)
 	if(typeof(visible)=="undefined")visible=!Libre.sidebar.visibleStatus;
 	if(visible==Libre.sidebar.visibleStatus)return;
 	Libre.sidebar.visibleStatus=visible;
-	var btnImage='normalSidebar';
+	//var btnImage='normalSidebar';
 	if (visible)
 	{
 		_("#sidebar").attr("class","sidebar sidebarNormal");
 		if(Libre.sidebar.pined)_("#workPan").attr("class","workPanNormal");
-		btnImage='setSidebar';
+		//btnImage='setSidebar';
+		_("#sidebarBtn").source.style.transform="rotate(90deg)";
   }else{
   		if(Libre.sidebar.pined)Libre.sidebar.pin(false);
 		_("#sidebar").attr("class","sidebar sidebarFwork");
 		_("#workPan").attr("class","workPanFwork");
+		_("#sidebarBtn").source.style.transform="";
 	}
-	/*var rect=_("#sidebarBtn").source.getBoundingClientRect();
-	_("#sidebarBtn").attr('src',Libre.images[btnImage]);
-	Libre.log("x: "+rect.width
-		+"  y: "+rect.height
-		);*/
+	//_("#sidebarBtn").attr('src',Libre.images[btnImage]);
 };
 Libre.sidebar.pined=false;
 Libre.sidebar.pin=function(a){
