@@ -44,29 +44,25 @@
 		<div id="extraPan" onclick="Libre.stopPropagation(event);">Extra bars -for fixed positioned dialog, originally hidden</div>
 		<div id="workPan" class="workPanNormal"></div>
 		<div id="sidebar" class="sidebar sidebarNormal" onclick="Libre.stopPropagation(event);">
-			<!--<input class="textbox" type="text" placeholder="filter..." onkeyup="Conversation.search(event.target.value,null,true);" id="filterTxb">-->
-			<div top class="menuList">
-				<div id="profilePan">
-					<img id="profileImg" src="res/image/png/user.png"/>
-					<span id="profileTitle"> Full Name </span>
-				</div>
-				<div id="homeRow" style="text-align: center">
-					<img style="width: 25px;height: 25px;object-fit: scale-down;" onclick="Messenger.onHome();" class="orange btn b5" src="res/image/png/home.png"/>
-	&nbsp;
-					<img style="width: 25px;height: 25px;object-fit: scale-down;" onclick="Messenger.onSetting();" class="orange btn b5" src="res/image/png/setting.png"/>
-	&nbsp;
-					<img style="width: 25px;height: 25px;object-fit: scale-down;" onclick="Messenger.onFlags();" class="orange btn b5" src="res/image/png/flag.png"/>
-				</div>
+			<div style="position: relative;height: 100%">
+				<div id="homePan" style="text-align: center">
+					<img style="width: 1em;height: 1em;object-fit: scale-down;" onclick="Messenger.onLogout();" class="maroon btn b5" src="res/image/png/logout.png"/>
+&nbsp;
+					<img style="width: 1em;height: 1em;object-fit: scale-down;" onclick="Messenger.onHome();" class="orange btn b5" src="res/image/png/home.png"/>
 
-				<ul id="menuArea">
-					<li id="logoutMenu" onclick="CAuth.logout(function(){window.location.href='login.html';});">&#10548; &nbsp; Logout</li>
-				</ul>
+					<img style="width: 1em;height: 1em;object-fit: scale-down;" onclick="Messenger.onSetting();" class="orange btn b5" src="res/image/png/setting.png"/>
+
+					<img style="width: 1em;height: 1em;object-fit: scale-down;" onclick="Messenger.onFlags();" class="orange btn b5" src="res/image/png/flag.png"/>
+				</div>
+				<div class="menuList">
+					<div id="profilePan">
+						<img id="profileImg" src="res/image/png/user.png"/>
+						<span id="profileTitle"> Full Name </span>
+					</div>
+				</div>
+				<ul class="convList" id="convArea"></ul>
+				<ul class="convList" id="contactArea"></ul>
 			</div>
-			<ul class="convList" id="convArea"></ul>
-			<ul class="convList" id="contactArea"></ul>
-			<ul class="menuList">
-				<li id="refreshBtn" onclick="ContactCheck.refresh();">&nbsp; &nbsp; &nbsp; Refresh Contacts</li>
-			</ul>
 		</div>
 		<div id="statusPan" onclick="Libre.stopPropagation(event);">Flask 2018</div>
 		<div id="floatbar" class="invisibleFloatbar" onclick="Libre.stopPropagation(event);">Float bar is here</div>

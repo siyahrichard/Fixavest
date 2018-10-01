@@ -53,13 +53,14 @@ user-select: none;
 
 .itMessage .info,.myMessage .info
 {color:gray;border-top:1px solid silver;padding-top: 3px;font-size: 0.8em;text-align: center;margin-top: 5px}
-.convList{display: flex;flex-direction: column-reverse;}
-.convList li{cursor: pointer;padding:5px;border-radius: 5px;position: relative;transition: box-shadow 0.3s;}
+.convList{display: flex;flex-direction: column-reverse;margin-top:10px;}
+.convList li{cursor: pointer;padding:2px 0px;position: relative;transition: box-shadow 0.3s;margin-top:0px !important;}
+.convList li:not(:first-child){border-bottom: 1px solid white}
 .convList li span{overflow:hidden;max-width: calc(100% - 3em - 25px);display: inline-block;vertical-align: middle;height: 1em;line-height: 1em;word-break: break-all;}
 .convList li:hover{box-shadow:0px 0px 2px deepskyblue}
-.convList .active{box-shadow: 0px 0px 40px gold inset}
-.convList .avatar{height: 2em; width: 2em; object-fit: cover;vertical-align: middle;margin-right: 10px;border-radius: 5px}
-.convList .option{height: 2em; width: 1em; object-fit: scale-down;vertical-align: middle;margin-right: 10px;float:right;}
+.convList .active{box-shadow: 0px 0px 10px gold inset;border-radius: 5px}
+.convList .avatar{height: 1.5em; width: 1.5em; object-fit: cover;vertical-align: middle;margin-right: 5px;border-radius: 5px}
+.convList .option{height: 1.5em; width: 0.5em; object-fit: scale-down;vertical-align: middle;margin-right: 10px;float:right;}
 .convList .msgCount{background-color:#D17D00;font-weight: bold;border-radius: 20px;border:2px solid yellow;padding:2px 4px;margin-top:3px;position: absolute;top:0px;left:0px;}
 
 #audienceTxb{margin-right: 10px}
@@ -80,9 +81,9 @@ user-select: none;
 		border: 1px solid white;
 		border-radius: 3px;
 		vertical-align: middle;
-		margin-top:5px;
-		float: left;
-		margin-left: 10px;
+		margin-top:3px;
+		float: right;
+		margin-right: 10px;
 		height: 34px;
 		line-height: 100%;
 		background-color: darkgoldenrod;
@@ -136,11 +137,11 @@ user-select: none;
 	.landscape .unsendIcon:before{background-position-x: -35px !important;}
 
 .convList,.menuList{list-style: none;}
-.menuList[top]{margin:-5px; background-color: #042066;border-radius:0px 0px 100% 20%;padding:10px;padding-bottom: 20px;}
+.menuList{margin:-5px; background-color: #042066;border-radius:0px 0px 100% 20%;padding:10px;}
 .menuList li{cursor: pointer;margin:var(--size20) auto;}
 #profilePan {margin-bottom: 30px}
-#profilePan img{height: 70px;width: 70px;object-fit: cover;vertical-align: middle;border-radius: 10px; border:5px solid white;}
-#profilePan span{text-align: middle; margin-left: 20px;
+#profilePan img{height: 2em;width: 2em;object-fit: cover;vertical-align: middle;border-radius: 5px; border:2px solid white;}
+#profilePan span{margin-left: 5px;text-overflow: ellipsis;display: inline-block;height: 1em;width: calc(100% - 55px);overflow: hidden;word-break: break-all;}
 
 .flagIcon:before,.editIcon:before,.deleteIcon:before,.copyIcon:before,.unsendIcon:before
 {background: url(../../res/image/png/menu-icons.png);background-repeat: no-repeat;background-size: 600%;}
@@ -152,3 +153,18 @@ user-select: none;
 .myMessage .msg-status:before{content:'✓';font-size:1em;margin-right:1em;font-weight: bold}
 .myMessage .msg-status.received:before{content:'✓✓' !important;}
 .myMessage .msg-status.seen:before{content:'✓✓' !important;color:dodgerblue !important;}
+
+#homePan{
+	bottom: 25px;
+    position: fixed;
+    padding: 3px;
+    border-top: 2px solid white;
+    border-top-right-radius: 30px;
+    padding-right: 20px;
+    background-color: #267FD8;
+}
+.maroon{
+	background-color: maroon;
+	color:white;
+	border:1px solid rosybrown;
+}
