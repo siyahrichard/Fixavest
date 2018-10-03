@@ -80,11 +80,11 @@ html,body{min-height: 100%;overflow-x: hidden;}
 
 /*mobile/portrait specifics*/
 .portrait #mainMenuPan{height:50px;}
-.portrait .workPanNormal{top:50px;left:0px;right:0px;bottom:0px;overflow-y: scroll;}
+.portrait .workPanNormal{top:50px;left:0px;right:0px;bottom:0px;overflow-y: auto;}
 .portrait .workPanFwork{top:50px;bottom:0px;overflow-y: auto;}
-.portrait .sidebar{transition: left 0.1s,padding 0.5s;top:50px;bottom:0px;right:0px;width:80vw;}
-.portrait .sidebarNormal{left:0px;padding:5px;}
-.portrait .sidebarFwork{left: -80vw;padding:0em;}
+.portrait .sidebar{transition: transform 0.1s,padding 0.5s;left:0px;top:0px;bottom:0px;width:80vw;will-change:transform;}
+.portrait .sidebarNormal{padding:5px;}
+.portrait .sidebarFwork{transform: translateX(-80vw);padding:0em;}
 .portrait #pinPar{display: none;position: absolute; top: -200pt}
 .portrait #projectBtn{display: none;position: absolute; top: -200pt}
 .portrait #mainMenuPan #menuItemList>li{float:left;margin:3px;font-size:15px;}
@@ -101,9 +101,9 @@ html,body{min-height: 100%;overflow-x: hidden;}
 .landscape #mainMenuPan{height:31px;}
 .landscape .workPanNormal{top:31px;left:26vw;right:0px;bottom:15px;}
 .landscape .workPanFwork{top:31px;bottom:15px;}
-.landscape .sidebar{transition: all 0.1s;top:31px;width:25vw;bottom:25px;padding:0.5vw;}
-.landscape .sidebarNormal{left:0px;}
-.landscape .sidebarFwork{position:absolute;left:-27vw;overflow: hidden;}
+.landscape .sidebar{transition: transform 0.1s;left:0px;top:31px;width:25vw;bottom:25px;padding:0.5vw;will-change:transform;}
+.landscape .sidebarNormal{}
+.landscape .sidebarFwork{position:absolute;transform:translateX(-27vw);overflow: hidden;}
 .landscape #mainMenuPan #menuItemList>li{float:left; margin-left:3px;font-size:15px;}
 .landscape #mainMenuPan #menuItemTools{margin-right: 10px}
 .landscape #mainMenuPan #menuItemTools li{margin-left:3px;margin-top:3px}

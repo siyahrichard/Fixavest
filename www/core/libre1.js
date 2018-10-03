@@ -47,10 +47,10 @@ Libre.status.show=function(inner)
 };
 Libre.sidebar={};
 Libre.sidebar.visibleStatus=true;
-Libre.sidebar.visible=function(visible)
+Libre.sidebar.visible=function(visible,force)
 {
 	if(typeof(visible)=="undefined")visible=!Libre.sidebar.visibleStatus;
-	if(visible==Libre.sidebar.visibleStatus)return;
+	if(visible==Libre.sidebar.visibleStatus && !force)return;
 	Libre.sidebar.visibleStatus=visible;
 	//var btnImage='normalSidebar';
 	if (visible)
@@ -72,7 +72,7 @@ Libre.sidebar.pin=function(a){
 	if(typeof(a)=="undefined")a=!Libre.sidebar.pined;
 	Libre.sidebar.pined=a;
 	var btnImage='normalPin';
-	if(a){btnImage='setPin'; Libre.sidebar.visible(true);}
+	if(a){btnImage='setPin'; Libre.sidebar.visible(true,true);}
 	_("#pinBtn").attr('src',Libre.images[btnImage]);
 }
 Libre.sidebar.show=function(inner)

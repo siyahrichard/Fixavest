@@ -306,10 +306,6 @@ Messenger.activeAppId=null;
 Messenger.showingHolder=null;
 
 
-Messenger.setAvailable=function(availMode)
-{
-	
-};
 Messenger.config=function()
 {
 	Jet.App.register('Messenger',Messenger);
@@ -482,10 +478,6 @@ Messenger.receive=function()
 	}
 	LU.globalCallback=Messenger.receiveBack;
 	CMessage.receive(null,Messenger.lastMoment,"",Messenger.clearOnRead);
-};
-Messenger.install=function()
-{
-	
 };
 Messenger.buildEmojies=function()
 {
@@ -666,10 +658,12 @@ Messenger.isShowing=function(msg)
 };
 Messenger.onHome=function()
 {
+	if(Messenger.activeObject)Messenger.activeObject.exit();
 	FLHome.show(_('#workPan').source);
 };
 Messenger.onSetting=function()
 {
+	if(Messenger.activeObject)Messenger.activeObject.exit();
 	FLSetting.show(_('#workPan').source);
 };
 Messenger.onFlag=function()
@@ -688,6 +682,10 @@ Messenger.onLogout=function()
 	if(confirm('are you sure to logout?')){
 		CAuth.logout(function(){window.location.href='login.html';});
 	}
+};
+Messenger.navigate=function(msg)
+{
+	Libre.work.show('showing message from search or message object. ->'+ msg.value);
 };
 
 function Conversation(uid,title,picture)
@@ -789,23 +787,28 @@ Conversation.load=function(uid,stato)
 		//Conversation.loadMessages(uid);
 	};
 };
-Conversation.search=function(param,order,contacts,dl,ul)
+Conversation.search=function(param,order,contacts,dl,ul,callback)
 {
 	_("#convArea").source.innerHTML=''; _("#contactArea").source.innerHTML='';
 	param=param.toLowerCase();
 	if(!Conversation.listo)Conversation.listo={};
-	var request=Conversation.db.transaction(['convOS'],'readonly').objectStore('convOS').openCursor().onsuccess=function(e){
+	var request=Conversation.db.transaction(['convOS'],'readonly').objectStore('convOS').openCursor();
+	Conversation.listo={};//clear the list
+	request.onsuccess=function(e){
 		var cursor=e.target.result;
 		if(cursor){
-			if(cursor.value.title.toLowerCase().indexOf(param)>=0){
+			if(cursor.value.title.toLowerCase().indexOf(this.param)>=0){
 				Conversation.buildForm(cursor.value,2,"convArea");
 				Conversation.listo[cursor.value.uid]=cursor.value; //keep conversation somewhere
 			}
 			cursor.continue();
 		}else{
-			if(contacts)Conversation.showContacts(param,true);
+			if(this.callback)this.callback(Conversation.listo);
+			else if(contacts)Conversation.showContacts(param,true);
 		}
 	};
+	request.callback=callback;
+	request.param=param;
 };
 Conversation.config=function()
 {
@@ -844,10 +847,6 @@ Conversation.buildForm=function(o,view,par)
 		_("#convCount"+o.uid).addClass('hide');
 	}
 	return c;
-};
-Conversation.listItems=function(res)
-{
-	
 };
 Conversation.start=function(uid)
 {
@@ -1037,6 +1036,68 @@ Conversation.setId=function(res)
 {
 	Conversation.activeObject.id=parseInt(res);
 };
+Conversation.delete=function(uid,del_conversation)
+{
+	var index=Conversation.db.transaction(['msgOS'],'readwrite').objectStore('msgOS').index("sortConv");
+	
+	var req=index.openCursor(IDBKeyRange.bound([uid,0],[uid,parseInt(Date.now()/1000)]));
+	req.onsuccess=function(e){
+		var cursor=e.target.result;
+		if(cursor){
+			cursor.delete(); //delete object
+			cursor.continue();
+		}else{
+			var callback=function(){
+				Conversation.deleteFinalyze(arguments.callee.audience);
+			};
+			callback.audience=this.audience;
+			CMOption.deleteAll(null,this.audience,callback);
+		}
+	};
+	req.audience=uid;
+	
+	if(del_conversation){
+		var request=Conversation.db.transaction(['convOS'],'readwrite').objectStore('convOS').delete(uid);
+	}
+};
+Conversation.deleteFinalyze=function(audience)
+{
+	if(Messenger.targetUID==audience){
+		Messenger.activeObject.exit();
+		Messenger.onHome();
+	}
+	Libre.log('The conversation has been deleted.');
+	if((conv=_("#conversation"+audience))){
+		conv.source.parentElement.removeChild(conv.source);
+	}
+};
+Conversation.searchMessage=function(param,uid,dl,count,callback)
+{
+	var keyrange=null;
+	if(uid){
+		var place=Conversation.db.transaction(['msgOS'],'readwrite').objectStore('msgOS').index("sortConv");
+		keyrange=IDBKeyRange.bound([uid,0],[uid,parseInt(Date.now()/1000)]);
+	}else{
+		var place=Conversation.db.transaction(['msgOS'],'readwrite').objectStore('msgOS');
+	}
+	var req=place.openCursor(keyrange);
+	req.onsuccess=function(e){
+		var cursor=e.target.result;
+		if(cursor && this.out_result.length<this.count){
+			if(!this.audience || cursor.value.conv==this.audience){
+				if(cursor.value.value.indexOf(param)>-1)this.out_result.push(cursor.value);
+			}
+			cursor.continue();
+		}else{
+			if(this.callback)this.callback(this.out_result);
+		}
+	};
+	req.audience=uid;
+	req.param=param;
+	req.count=count?count:10;
+	req.out_result=[];
+	req.callback=callback;
+};
 
 function ConvSetting(uid,skey)
 {
@@ -1054,7 +1115,7 @@ ConvSetting.config=function()
 {
 	Jet.App.register('ConvSetting',ConvSetting);
 	Jet.App.form.ConvSetting={};
-	Jet.App.form.ConvSetting[1]="<div class=\"ContactSetting\"><img id=\"profilePic\" onerror=\"ConvSetting.onErrorImage(event)\"/></div><table><tr><td>Security Key</td><td><input class=\"textbox\" onchange=\"ConvSetting.onChangeKey(event);\" value=\"%skey%\"/></td></tr><tr><td></td><td><hr/></td></tr><tr><td>Storage</td><td><button class=\"blue btn\" onclick=\"Conversation.clearMessages('%uid%');\"> Delete messages </button>&nbsp; &nbsp;<button class=\"red btn\" onclick=\"Conversation.clearMessages('%uid%');Conversation.remove('%uid%');\"> Delete the conversation </button></td></tr></table>";
+	Jet.App.form.ConvSetting[1]="<div class=\"ContactSetting\"><img id=\"profilePic\"/></div><table><tr><td>Security Key</td><td><input class=\"textbox\" onchange=\"ConvSetting.onChangeKey(event);\" value=\"%skey%\"/></td></tr><tr><td></td><td><hr/></td></tr><tr><td>Storage</td><td><p><button class=\"blue btn\" onclick=\"Conversation.delete('%uid%',false);\"> Delete messages and keep the audience on the list </button></p><p><button class=\"red btn\" onclick=\"Conversation.delete('%uid%',true);Conversation.remove('%uid%');\"> Delete the conversation and all messages </button></p></td></tr></table>";
 	Jet.App.form.ConvSetting[2]="";
 	
 	Jet.App.form.ConvSetting.userOperation="";
@@ -1109,15 +1170,18 @@ function CMOption()
 CMOption.table='cmopt';
 
 
-CMOption.install=function()
-{
-	
-};
 CMOption.update=function(ids,option,uid)
 {
 	var n=new NetData();
 	n.url="client/CMOption/update/";
 	n.add('ids',JSON.stringify(ids),true).add('option',option).commit();
+};
+CMOption.deleteAll=function(uid,audience,callback)
+{
+	var n=new NetData();
+	n.url="client/CMOption/deleteAll/";
+	if(callback)n.callback=callback;
+	n.add('audience',audience).commit();
 };
 
 function CMStatus()
@@ -1136,19 +1200,11 @@ function CMStatus()
 CMStatus.table='cmstat';
 
 
-CMStatus.install=function()
-{
-	
-};
 CMStatus.update=function(ids,option,timing)
 {
 	var n=new NetData();
 	n.url="client/CMStatus/update/";
 	n.add('ids',JSON.stringify(ids),true).add('option',option).commit();
-};
-CMStatus.perform=function(msgs)
-{
-	
 };
 
 function ConvStat(uid,conversation,receive,seen)
@@ -1166,10 +1222,6 @@ this.uid=uid?uid:null; this.conversation=conversation?conversation:0; this.lastR
 ConvStat.table='conestat';
 
 
-ConvStat.install=function()
-{
-	
-};
 ConvStat.status=function(uid,conversation,callback)
 {
 	var n=new NetData();n.onerror=null;

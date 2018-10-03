@@ -155,16 +155,32 @@ user-select: none;
 .myMessage .msg-status.seen:before{content:'✓✓' !important;color:dodgerblue !important;}
 
 #homePan{
-	bottom: 25px;
-    position: fixed;
+	bottom: 0px; left:0px;
+    position: absolute;
     padding: 3px;
     border-top: 2px solid white;
     border-top-right-radius: 30px;
     padding-right: 20px;
     background-color: #267FD8;
 }
+#sidebarScroll{
+	height: calc(100% - 50px - 5em - 5pt);
+	overflow-x: hidden;
+	overflow-y: auto;
+}
 .maroon{
 	background-color: maroon;
 	color:white;
 	border:1px solid rosybrown;
 }
+
+.searchType{
+	border:1px solid snow; padding: 20px; margin: 5px; border-radius: 5px;
+}
+.searchItem{
+	border:1px solid silver; padding: 3px; margin: 5px; box-shadow: 1px 1px 5px gray; border-radius: 5px;
+}
+.searchItem .side1{display: inline-block;vertical-align: middle;width: 20%;}
+.searchItem .side1 img{height: 50px;width: 100%;object-fit: scale-down; border-radius:5px;background-color: black;vertical-align: middle; }
+.searchItem .side2{display: inline-block;vertical-align: middle;width: calc(80% - 18px);margin-left: 10px}
+.searchItem.mode1{padding:10px !important;}

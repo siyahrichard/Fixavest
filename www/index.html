@@ -32,6 +32,9 @@
 		<script type="text/javascript" src="service/201/core/jetXtra.js"></script>
 		<script type="text/javascript" src="cordova.js"></script>
 
+		<script type="text/javascript" src="core/js/events.js"></script>
+		<script type="text/javascript" src="core/watchdog.js"></script>
+
 		<style type="text/css">
 			html,body{height: 100%}
 			*{margin:0px;}
@@ -39,8 +42,9 @@
 	</head>
 	<body onclick="if(!Libre.sidebar.pined)Libre.sidebar.visible(false);">
 		<div id="mainMenuPan" onclick="Libre.stopPropagation(event);"><ul id="menuItemList"><li>Home</li><li>About</li></ul>
-			<div id="msgAudPar"><span id="msgAud">&#127968;</span></div>
-		<ul id="menuItemTools"><li>Setting</li><li>Search</li></ul></div>
+		<ul id="menuItemTools"><li>Setting</li><li>Search</li></ul>
+		<div id="msgAudPar"><span id="msgAud">&#127968;</span></div>
+		</div>
 		<div id="extraPan" onclick="Libre.stopPropagation(event);">Extra bars -for fixed positioned dialog, originally hidden</div>
 		<div id="workPan" class="workPanNormal"></div>
 		<div id="sidebar" class="sidebar sidebarNormal" onclick="Libre.stopPropagation(event);">
@@ -60,8 +64,10 @@
 						<span id="profileTitle"> Full Name </span>
 					</div>
 				</div>
-				<ul class="convList" id="convArea"></ul>
-				<ul class="convList" id="contactArea"></ul>
+				<div id="sidebarScroll">
+					<ul class="convList" id="convArea"></ul>
+					<ul class="convList" id="contactArea"></ul>
+				</div>
 			</div>
 		</div>
 		<div id="statusPan" onclick="Libre.stopPropagation(event);">Flask 2018</div>
