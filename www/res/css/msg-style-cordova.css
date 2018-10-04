@@ -180,7 +180,7 @@ user-select: none;
 .searchItem{
 	border:1px solid silver; padding: 3px; margin: 5px; box-shadow: 1px 1px 5px gray; border-radius: 5px;
 }
-.searchItem .side1{display: inline-block;vertical-align: middle;width: 20%;}
-.searchItem .side1 img{height: 50px;width: 100%;object-fit: scale-down; border-radius:5px;background-color: black;vertical-align: middle; }
+.searchItem .side1{display: inline-block;vertical-align: middle;width: 70px;}
+.searchItem .side1 img{height: 50px;width: 50px;object-fit: scale-down; border-radius:5px;background-color: black;vertical-align: middle; }
 .searchItem .side2{display: inline-block;vertical-align: middle;width: calc(80% - 18px);margin-left: 10px}
 .searchItem.mode1{padding:10px !important;}

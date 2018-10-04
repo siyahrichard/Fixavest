@@ -6,6 +6,7 @@ function FLHome()
 
 FLHome.buttons=null;
 FLHome.currentType=null;
+FLHome.lastParent=null;
 
 
 FLHome.show=function(par)
@@ -17,7 +18,15 @@ FLHome.show=function(par)
 		"web":"webSearchBtn"
 	};
 	FLHome.currentType="contact";
+	FLHome.lastParent=par;
 	par.innerHTML="<div style=\"padding:5px;background-color: midnightblue\"><img style=\"width: 50px;height: 50px;vertical-align: middle;margin-right: 10px\" src=\"res/image/png/logo.png\"/><button id=\"allSearchBtn\" class=\"blue btn b5\" onclick=\"FLHome.setType('all');\">All</button>&nbsp;<button id=\"contactSearchBtn\" class=\"orange btn b5\" onclick=\"FLHome.setType('contact');\">Contacts</button>&nbsp;<button id=\"messageSearchBtn\" class=\"blue btn b5\" onclick=\"FLHome.setType('message');\">Messages</button>&nbsp;<button id=\"webSearchBtn\" class=\"blue btn b5\" onclick=\"FLHome.setType('web');\">Web</button>&nbsp;</div><div id=\"resultArea\" style=\"margin:5px;border:1px solid gray;border-radius: 5px;padding:5px;box-shadow: 2px 2px 20px gray;background:linear-gradient(to right,white,#F8E5FF);\"><p style=\"margin:1vw\">Features:<ul style=\"margin:3vh\"><li>Edit/Delete and unsend messages</li><li>Flag Messages</li><li>Run applications and Play games (in this version only chess)</li><li>View message status (sent,received,seen)</li><li>Search over messages and contacts</li></ul></p><p style=\"margin:1vw\">Features of next version:<ul style=\"margin:3vh\"><li>Upload files</li><li>Record audio and video</li><li>Drawing application</li><li>Application status snapshop</li><li>Edit profile information directly</li><li>Search over the web</li><li>Support for system notification</li><li>Scheduled send message</li><li>Messaging panel and API for business</li></ul></p></div>";
+	
+	if(!SearchItem.configed){
+		SearchItem.config({
+			"conv":"res/image/png/user.png",
+			"msg":"res/image/png/conversation.png"
+		});
+	}
 };
 FLHome.setType=function(type)
 {
@@ -33,18 +42,24 @@ FLHome.setType=function(type)
 FLHome.onSearch=function(e)
 {
 	if(e.keyCode==13){
-		_("#resultArea").source.innerHTML="";
+		if(typeof(Messenger)!="undefined"){
+			if(Messenger.activeObject){
+				Messenger.activeObject.exit(); //stop existing messenger first
+			}
+		}
+		var resArea=FLHome.getResultArea();
+		resArea.innerHTML="";
 		var param=e.target.value;
 		switch(FLHome.currentType){
 			case 'all':
 				Conversation.search(param,null,0,10,false,FLHome.showConversations);//search in conversations
-				Conversation.searchMessage(param,null,0,10,FLHome.showMessages);//search in messages
+				Conversation.searchMessage(param,null,0,10,null,FLHome.showMessages);//search in messages
 				break;
 			case 'contact':
 				Conversation.search(param,null,0,10,false,FLHome.showConversations);
 				break;
 			case 'message':
-				Conversation.searchMessage(param,null,0,10,FLHome.showMessages);
+				Conversation.searchMessage(param,null,0,10,null,FLHome.showMessages);//after count there is search option like flags
 				break;
 			case 'web':
 				//search web for results
@@ -103,6 +118,17 @@ FLHome.showMessages=function(res)
 		SearchType.buildForm(stype,1,"resultArea");
 	}
 };
+FLHome.getResultArea=function()
+{
+	var ret=null;
+	if((ret=_("#resultArea"))){
+		return ret.source;
+	}else if(FLHome.lastParent){
+		FLHome.show(FLHome.lastParent);
+		return FLHome.getResultArea();
+	}
+	return null;
+};
 
 function FLSetting()
 {
@@ -156,6 +182,9 @@ function SearchType(title,code,maxShow,items)
 	this.maxShow=null;
 	this.items=null;
 this.title=title?title:null; this.code=code?code:null; this.maxShow=maxShow?maxShow:null; this.items=items?items:null;
+for(var i=0;i<items.length;i++){
+	items[i].parent=this;//get access to the search type
+}
 };
 
 
@@ -191,33 +220,41 @@ function SearchItem(title,description,image,callback,arg,id)
 	this.image=null;
 	this.callback=null;
 	this.arg=null;
+	this.parent=null;
 this.id=id?id:0; this.title=title?title:null; this.description=description?description:null; this.image=image?image:null; this.callback=callback?callback:null; this.arg=arg?arg:null;
 };
 
 
 
+SearchItem.errorImages=null;
+SearchItem.configed=false;
+
 
 SearchItem.buildForm=function(o,view,par)
 {
-	if(!Jet.App.form.SearchItem)SearchItem.config();
+	if(!SearchItem.configed)SearchItem.config();
 	ctrl= Jet.App.buildForm(o,SearchItem.getViewOf(o),par);
 	ctrl.lObj=o;
 	ctrl.addEventListener('click',SearchItem.onClick,false);
 	return ctrl;
 };
-SearchItem.config=function()
+SearchItem.config=function(errImages)
 {
 	Jet.App.register('SearchItem',SearchItem);
 	Jet.App.form.SearchItem={};
-	Jet.App.form.SearchItem[1]="<div class=\"searchItem\" onclick=\"SearchItem.onClick(event)\"><div class=\"side1\"><img src=\"%image%\"/></div><div class=\"side2\"><p><b>%title%</b></p><hr/><p>%description%</p></div></div>";
+	Jet.App.form.SearchItem[1]="<div class=\"searchItem\" onclick=\"SearchItem.onClick(event)\"><div class=\"side1\"><img onerror=\"SearchItem.onImageError(event);\" src=\"%image%\"/></div><div class=\"side2\"><p><b>%title%</b></p><hr/><p>%description%</p></div></div>";
 	Jet.App.form.SearchItem[2]="<div class=\"searchItem mode1\" onclick=\"SearchItem.onClick(event)\"><p><b>%title%</b></p><hr/><p>%description%</p></div>";
-	Jet.App.form.SearchItem[3]="<div class=\"searchItem\" onclick=\"SearchItem.onClick(event)\"><div class=\"side1\"><img src=\"%image%\"/></div><div class=\"side2\"><span>%title%</span></div></div>";
-	Jet.App.form.SearchItem[4]="<div class=\"searchItem\" onclick=\"SearchItem.onClick(event)\"><div class=\"side1\"><img src=\"%image%\"/></div><div class=\"side2\"><span>%description%</span></div></div>";
-	Jet.App.form.SearchItem[5]="<div class=\"searchItem mode2\" onclick=\"SearchItem.onClick(event)\"><img src=\"%image%\"/></div>";
+	Jet.App.form.SearchItem[3]="<div class=\"searchItem\" onclick=\"SearchItem.onClick(event)\"><div class=\"side1\"><img onerror=\"SearchItem.onImageError(event);\" src=\"%image%\"/></div><div class=\"side2\"><span>%title%</span></div></div>";
+	Jet.App.form.SearchItem[4]="<div class=\"searchItem\" onclick=\"SearchItem.onClick(event)\"><div class=\"side1\"><img onerror=\"SearchItem.onImageError(event);\" src=\"%image%\"/></div><div class=\"side2\"><span>%description%</span></div></div>";
+	Jet.App.form.SearchItem[5]="<div class=\"searchItem mode2\" onclick=\"SearchItem.onClick(event)\"><img onerror=\"SearchItem.onImageError(event);\" src=\"%image%\"/></div>";
 	
 	Jet.App.form.SearchItem.userOperation="";
 	Jet.App.form.SearchItem.ownerOperation=Jet.App.form.SearchItem.userOperation+
 	"";
+	if(errImages)SearchItem.errorImages=errImages;
+	else SearchItem.errorImages={};//empty dictionary
+	
+	SearchItem.configed=true;
 };
 SearchItem.getViewOf=function(o)
 {
@@ -227,4 +264,33 @@ SearchItem.getViewOf=function(o)
 	else if(o.description && o.image)return 4;
 	if(o.image)return 5;
 	return 0;
+};
+SearchItem.onClick=function(e)
+{
+	p=e.target;
+	while(typeof(p.lObj)=="undefined"){
+		p=p.parentElement;
+	}
+	if(p.lObj){
+		if(p.lObj.callback){
+			p.lObj.callback(p.lObj.arg);
+		}
+	}
+	if(e.stopPropagation)e.stopPropagation();
+	e.cancelBubble=true;
+};
+SearchItem.onImageError=function(e)
+{
+	p=e.target;
+	while(typeof(p.lObj)=="undefined"){
+		p=p.parentElement;
+	}
+	if(p.lObj){
+		var img=SearchItem.errorImages[p.lObj.parent.code];
+		if(img){
+			e.target.setAttribute('src',img);
+		}else{
+			e.target.parentElement.removeChild(e.target);//remove the image
+		}
+	}
 };

@@ -159,7 +159,10 @@ CMessage.onUnsend=function(e)
 };
 CMessage.onFlag=function(e)
 {
-	CMOption.update([Popup.eventObject.lObj.id],2);
+	var msg=Popup.eventObject.lObj;
+	CMOption.update([msg.id],2);
+	msg.options=msg.options?parseInt(msg.options)|2:2;
+	Conversation.storeMessages(msg);//update the message on client
 };
 CMessage.onCopyToClipboard=function(e)
 {
@@ -304,6 +307,7 @@ Messenger.appId=6;
 Messenger.appList=null;
 Messenger.activeAppId=null;
 Messenger.showingHolder=null;
+Messenger.showingMessage=null;
 
 
 Messenger.config=function()
@@ -513,6 +517,8 @@ Messenger.setEmoji=function(emcode)
 	        range.deleteContents();
 	        range.insertNode( img );
 	        Messenger.selectEnd();
+	    }else{
+	    	inputTxb.appendChild(img);//add emoji to the end of the input box
 	    }
 	} else if (document.selection && document.selection.createRange) {
 	    //document.selection.createRange().text = text;
@@ -666,9 +672,32 @@ Messenger.onSetting=function()
 	if(Messenger.activeObject)Messenger.activeObject.exit();
 	FLSetting.show(_('#workPan').source);
 };
-Messenger.onFlag=function()
+Messenger.showFlags=function(res)
 {
-	Libre.log('Flags are not ready yet.');
+	if(typeof(res)=="undefined"){
+		Messenger.onHome();//go to homepage
+		Conversation.searchMessage("",null,0,50,2,Messenger.showFlags);//search in messages, here '2' is an option to search only flaged messages
+	}else{
+		var items=[];var pos=0;
+		for(var i=0;i<res.length;i++){
+			pos=100;
+			items.push(new SearchItem(
+					UserInfo.list[res[i].conv].title,
+					res[i].value.substring(0,pos),
+					CloudFile.getUrlByCode(UserInfo.list[res[i].conv].picture),
+					Messenger.navigate,
+					res[i],
+					res[i].id
+				));
+		}
+		if(items.length>0){
+			_("#resultArea").source.innerHTML="";
+			var stype=new SearchType('Flaged Messages','msg',10,items);
+			SearchType.buildForm(stype,1,"resultArea");
+		}else{
+			_("#resultArea").value("There is no flaged message yet.");
+		}
+	}
 };
 Messenger.showMeOnSidebar=function(uinfo)
 {
@@ -685,7 +714,20 @@ Messenger.onLogout=function()
 };
 Messenger.navigate=function(msg)
 {
-	Libre.work.show('showing message from search or message object. ->'+ msg.value);
+	if(msg){
+		Messenger.showingMessage=msg;
+		Conversation.start(msg.conv,Messenger.navigate);
+	}else{
+		Messenger.scrollTo(Messenger.showingMessage);
+	}
+};
+Messenger.scrollTo=function(msg)
+{
+	var dialog=_("#MSG_"+Messenger.showingMessage.id).source;
+	if(Messenger.activeObject){
+		var ma=Messenger.activeObject.dialog.querySelector('.messageArea');
+		ma.scrollTop=dialog.offsetTop-10;
+	}
 };
 
 function Conversation(uid,title,picture)
@@ -706,6 +748,7 @@ Conversation.showingContact=0;
 Conversation.allUIDs=null;
 Conversation.contactIndex=0;
 Conversation.activeParam=null;
+Conversation.startCallback=null;
 Conversation.db=null;
 Conversation.convOS=null;
 Conversation.msgOS=null;
@@ -848,11 +891,11 @@ Conversation.buildForm=function(o,view,par)
 	}
 	return c;
 };
-Conversation.start=function(uid)
+Conversation.start=function(uid,callback)
 {
 	//update conversation id first
 	ConvStat.get(Messenger.currentUID,uid);
-	
+	Conversation.startCallback=callback;
 	//remove from contactArea
 	var ctrl=_("#contactArea").source.querySelector('#conversation'+uid);
 	if(ctrl)ctrl.parentElement.removeChild(ctrl);
@@ -924,6 +967,7 @@ Conversation.configMessenger=function(conv)
 	if(parts[1])abr+=parts[1][0].toUpperCase();
 	_("#msgAud").value(abr);
 	_("#msgAud").source.setAttribute("title",conv.title);
+	
 };
 Conversation.UInfoSetTitle=function(uinfo)
 {
@@ -1015,6 +1059,10 @@ Conversation.loadMessages=function(uid)
 			}
 			if(Messenger.setting.broadcastSeenTime && lastSeen>0)ConvStat.update(lastSeen,Messenger.currentUID,Conversation.activeObject.id);
 			Messenger.checkLastStatus();
+			if(Conversation.startCallback){
+				Conversation.startCallback();
+				Conversation.startCallback=null;
+			}
 		}
 	};
 };
@@ -1071,7 +1119,7 @@ Conversation.deleteFinalyze=function(audience)
 		conv.source.parentElement.removeChild(conv.source);
 	}
 };
-Conversation.searchMessage=function(param,uid,dl,count,callback)
+Conversation.searchMessage=function(param,uid,dl,count,option,callback)
 {
 	var keyrange=null;
 	if(uid){
@@ -1084,7 +1132,7 @@ Conversation.searchMessage=function(param,uid,dl,count,callback)
 	req.onsuccess=function(e){
 		var cursor=e.target.result;
 		if(cursor && this.out_result.length<this.count){
-			if(!this.audience || cursor.value.conv==this.audience){
+			if((!this.audience || cursor.value.conv==this.audience)&&(!this.option || (cursor.value.options&this.option)>0)){
 				if(cursor.value.value.indexOf(param)>-1)this.out_result.push(cursor.value);
 			}
 			cursor.continue();
@@ -1097,6 +1145,7 @@ Conversation.searchMessage=function(param,uid,dl,count,callback)
 	req.count=count?count:10;
 	req.out_result=[];
 	req.callback=callback;
+	req.option=option;
 };
 
 function ConvSetting(uid,skey)
