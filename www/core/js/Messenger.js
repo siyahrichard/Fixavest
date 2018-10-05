@@ -315,7 +315,7 @@ Messenger.config=function()
 	Jet.App.register('Messenger',Messenger);
 	Jet.App.form.Messenger={};
 	//Jet.App.form.Messenger[1]="<div class=\"messageArea\" id=\"messageArea%index%\"></div><div class=\"sendArea h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\"/><input id=\"inputTxb%index%\" onkeypress=\"Messenger.list[%index%].checkInput(event)\"/><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div>";
-	Jet.App.form.Messenger[1]="<table style=\"height: 100%;width: 100%\" cellspacing=\"0px\"><tr><td style=\"word-break:break-all;vertical-align: top;\"><div class=\"messengerPan infobox\"><div class=\"messageArea\" id=\"messageArea%index%\"></div></div><div class=\"sendArea h-setbox\"><div id=\"attachArea\" class=\"hide\"><ul><li><img src=\"res/image/png/call.png\"/></li><li onclick=\"Messenger.buildEmojies();\"><img src=\"res/image/png/emojies/1F600.png\"/></li><li onclick=\"Messenger.buildApps();\"><img src=\"res/image/png/app.png\"/></li></ul><div id=\"attachBoard\"></div></div><div class=\"h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\" onclick=\"_('#attachArea').toggleClass('hide');\"/><div contenteditable=\"true\" class=\"editor\" id=\"inputTxb\" onkeyup=\"Messenger.list[%index%].checkInput(event)\"></div><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div></div></div></td><td class=\"messengerAppArea hide\"></td></tr></table>";
+	Jet.App.form.Messenger[1]="<table style=\"height: 100%;width: 100%\" cellspacing=\"0px\"><tr><td style=\"word-break:break-all;vertical-align: top;\"><div class=\"messengerPan infobox\"><div class=\"messageArea\" id=\"messageArea%index%\"></div></div><div class=\"sendArea h-setbox\"><div id=\"attachArea\" class=\"hide\"><ul><li><img src=\"res/image/png/call.png\"/></li><li onclick=\"Messenger.buildEmojies();\"><img src=\"res/image/png/emojies/1F600.png\"/></li><li onclick=\"Messenger.buildApps();\"><img src=\"res/image/png/app.png\"/></li></ul><div id=\"attachBoard\"></div></div><div class=\"h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\" onclick=\"_('#attachArea').toggleClass('hide');\"/><div contenteditable=\"true\" class=\"editor\" id=\"inputTxb\" onkeyup=\"Messenger.list[%index%].checkInput(event)\"></div><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div></div></div></td><td class=\"messengerAppArea hide\"><div id=\"msgAppParent\"></div></td></tr></table>";
 	Jet.App.form.Messenger[2]="";
 	
 	
@@ -592,11 +592,12 @@ Messenger.onOpenApp=function(appid,msg)
 	Libre.sidebar.visible(false);
 	_(".messengerAppArea").removeClass("hide");
 	_("#closeAppBtn").removeClass("hide");
-	var msgAppArea=Messenger.activeObject.dialog.querySelector('.messengerAppArea');
+	var msgAppPar=Messenger.activeObject.dialog.querySelector('#msgAppParent');
 	if(appClass.loaded){
 		//msg=Object.create(msg);
 		//msg.value=CryptoJS.AES.decrypt((msg.value),Messenger.activeObject.secureKey).toString(CryptoJS.enc.Utf8);
-		appClass.openByCuad(msg,msgAppArea);
+		msgAppPar.style.height="calc(100% - "+document.querySelector('.sendArea').offsetHeight+"px)";
+		appClass.openByCuad(msg,msgAppPar);
 	}else{
 		appClass.loadResourceCallback=function(){
 			Messenger.onOpenApp(Messenger.activeAppId,arguments.callee.msg);
@@ -646,7 +647,7 @@ Messenger.buildApps=function()
 };
 Messenger.closeApp=function()
 {
-	document.querySelector(".messengerAppArea").innerHTML="";
+	document.querySelector("#msgAppParent").innerHTML="";
 	_(".messengerAppArea").addClass("hide");
 	_("#closeAppBtn").addClass("hide");
 	document.querySelector(".messageArea").style.display="";
@@ -665,11 +666,13 @@ Messenger.isShowing=function(msg)
 Messenger.onHome=function()
 {
 	if(Messenger.activeObject)Messenger.activeObject.exit();
+	_("#msgAudPar").addClass('hide');
 	FLHome.show(_('#workPan').source);
 };
 Messenger.onSetting=function()
 {
 	if(Messenger.activeObject)Messenger.activeObject.exit();
+	_("#msgAudPar").addClass('hide');
 	FLSetting.show(_('#workPan').source);
 };
 Messenger.showFlags=function(res)
@@ -885,7 +888,7 @@ Conversation.buildForm=function(o,view,par)
 	if(view==2){
 		c.setAttribute("onclick","Conversation.start('%uid%');".replace('%uid%',o.uid));
 		c.setAttribute("id","conversation"+o.uid);
-		
+		c.setAttribute("uid",o.uid);
 		_("#convCount"+o.uid).value('0');
 		_("#convCount"+o.uid).addClass('hide');
 	}
@@ -962,11 +965,8 @@ Conversation.configMessenger=function(conv)
 	Conversation.audIconPopup.items[1].command.uid=conv.uid;
 	//load messages
 	
-	var parts=conv.title.split(/\s+/);
-	var abr=parts[0][0].toUpperCase();
-	if(parts[1])abr+=parts[1][0].toUpperCase();
-	_("#msgAud").value(abr);
-	_("#msgAud").source.setAttribute("title",conv.title);
+	_("#msgAudPar").removeClass('hide');
+	TextAvatar.getTextAvatar(conv.title,"msgAudPar",null,null,2);
 	
 };
 Conversation.UInfoSetTitle=function(uinfo)
@@ -1014,7 +1014,15 @@ Conversation.stepShowContact=function()
 };
 Conversation.defaultImage=function(e)
 {
-	e.target.setAttribute("src","res/image/png/user.png");
+	var avatar=document.createElement('span');
+	avatar.setAttribute("class","avatar");
+	var title=e.target.parentElement.getAttribute('title');
+	
+	e.target.parentElement.insertBefore(avatar,e.target);
+	e.target.parentElement.removeChild(e.target);
+	
+	TextAvatar.getTextAvatar(title,avatar,null,null,2);
+	//e.target.setAttribute("src","res/image/png/user.png");
 };
 Conversation.storeMessages=function(messages)
 {

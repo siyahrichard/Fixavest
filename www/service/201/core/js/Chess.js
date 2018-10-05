@@ -84,7 +84,7 @@ Board.config=function()
 {
 	Jet.App.register('Board',Board);
 	Jet.App.form.Board={};
-	Jet.App.form.Board[1]="<div class=\"Board\"><div class=\"OpponentCemetry\"></div><div class=\"BoardBody\"><div class=\"chRow\"><div class=\"noneAdrs\">&nbsp;</div><div class=\"Area\">a</div><div class=\"Area\">b</div><div class=\"Area\">c</div><div class=\"Area\">d</div><div class=\"Area\">e</div><div class=\"Area\">f</div><div class=\"Area\">g</div><div class=\"Area\">h</div><div class=\"noneAdrs\">&nbsp;</div></div><div class=\"BoardArea\"></div><div class=\"chRow\"><div class=\"Area\">a</div><div class=\"Area\">b</div><div class=\"Area\">c</div><div class=\"Area\">d</div><div class=\"Area\">e</div><div class=\"Area\">f</div><div class=\"Area\">g</div><div class=\"Area\">h</div></div></div><div id=\"piecesSelector\" status=\"close\"><div id=\"piecesPan\"></div></div><div class=\"MyCemetry\"></div></div>";
+	Jet.App.form.Board[1]="<div class=\"Board\"><div class=\"OpponentCemetry\"></div><div class=\"BoardBody\"><div class=\"chRow\"><div class=\"noneAdrs\">&nbsp;</div><div class=\"Area\">a</div><div class=\"Area\">b</div><div class=\"Area\">c</div><div class=\"Area\">d</div><div class=\"Area\">e</div><div class=\"Area\">f</div><div class=\"Area\">g</div><div class=\"Area\">h</div><div class=\"noneAdrs\">&nbsp;</div></div><div class=\"BoardArea\"></div><div class=\"chRow\"><div class=\"noneAdrs\">&nbsp;</div><div class=\"Area\">a</div><div class=\"Area\">b</div><div class=\"Area\">c</div><div class=\"Area\">d</div><div class=\"Area\">e</div><div class=\"Area\">f</div><div class=\"Area\">g</div><div class=\"Area\">h</div><div class=\"noneAdrs\">&nbsp;</div></div></div><div id=\"piecesSelector\" status=\"close\"><div id=\"piecesPan\"></div></div><div class=\"MyCemetry\"></div></div>";
 	Jet.App.form.Board[2]="";
 	
 	Jet.App.form.Board.userOperation="";
@@ -94,13 +94,19 @@ Board.config=function()
 Board.buildForm=function(o,view,par)
 {
 	var ctrl=Jet.App.buildForm(o,view,par);
+	par=ctrl.parentElement;
 	o.dialog=ctrl;
 	var board=ctrl.querySelector(".Board");
 	if(o.flyColor>-1){
 		board.setAttribute("clientColor",o.flyColor);
 	}else board.setAttribute("clientColor",o.clientColor);
 	if(view==1){
+		var max_width=par.offsetWidth-20; var max_height=par.offsetHeight-20;
+		var size=max_width<max_height?max_width:max_height;
+		var vertical=max_width<max_height?true:false;
+		(new JetHtml(board)).addClass(vertical?"vertical":"horizontal");
 		var boardArea=ctrl.querySelector(".BoardArea"); //cell_float="right";
+		var boardBody=ctrl.querySelector(".BoardBody"); //cell_float="right";
 		boardArea.setAttribute("client",o.ClientColor);
 		var row_step=1; var row_start=0; var y=8; total_y=8;
 		if(o.clientColor==White || o.flyColor==White){
@@ -133,6 +139,8 @@ Board.buildForm=function(o,view,par)
 			row.appendChild(rightAdrs);
 			boardArea.appendChild(row);
 		}
+		boardBody.style.height=size+"px";
+		boardBody.style.width=size+"px";
 		
 		for(var k=0;k<o.pieces.length;k++){
 			if(o.pieces[k].place)Piece.buildForm(o.pieces[k],1,o.cells[o.pieces[k].place]);
@@ -1149,7 +1157,7 @@ Chess.loadResources=function(path)
 	if(!Chess.resources){
 		if(!path)path="";
 		Chess.resources=[
-			{type:"css",url:path+"res/style/defaultTheme-all.css"},
+			{type:"css",url:path+"res/style/defaultTheme-dynamic.css"},
 			{type:"js",url:path+"res/meta/const.js"}
 			];
 		Chess.loadResourceIndex=0;

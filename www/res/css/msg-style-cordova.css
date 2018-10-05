@@ -58,8 +58,8 @@ user-select: none;
 .convList li:not(:first-child){border-bottom: 1px solid white}
 .convList li span{overflow:hidden;max-width: calc(100% - 3em - 25px);display: inline-block;vertical-align: middle;height: 1em;line-height: 1em;word-break: break-all;}
 .convList li:hover{box-shadow:0px 0px 2px deepskyblue}
-.convList .active{box-shadow: 0px 0px 10px gold inset;border-radius: 5px}
-.convList .avatar{height: 1.5em; width: 1.5em; object-fit: cover;vertical-align: middle;margin-right: 5px;border-radius: 5px}
+.convList .active{border-bottom: 2px solid orange}
+.convList .avatar{height: 1.5em; width: 1.5em;display: inline-block; object-fit: cover;vertical-align: middle;margin-right: 5px;border-radius: 5px}
 .convList .option{height: 1.5em; width: 0.5em; object-fit: scale-down;vertical-align: middle;margin-right: 10px;float:right;}
 .convList .msgCount{background-color:#D17D00;font-weight: bold;border-radius: 20px;border:2px solid yellow;padding:2px 4px;margin-top:3px;position: absolute;top:0px;left:0px;}
 
@@ -76,17 +76,17 @@ user-select: none;
 	.portrait #msgAudPar
 	{    
 		display: inline-block;
-		font-size: 30px;
-		padding: 2px;
-		border: 1px solid white;
-		border-radius: 3px;
-		vertical-align: middle;
-		margin-top:3px;
-		float: right;
-		margin-right: 10px;
-		height: 34px;
-		line-height: 100%;
-		background-color: darkgoldenrod;
+	    /* font-size: 30px; */
+	    border: 2px solid white;
+	    border-radius: 5px;
+	    /* vertical-align: middle; */
+	    margin-top: 6px;
+	    float: right;
+	    margin-right: 10px;
+	    height: 34px;
+	    width: 34px;
+	    /* background-color: darkgoldenrod; */
+	    overflow: hidden;
 	}
 	.portrait #audienceTxb{display: none}
 	.portrait .sendArea .editor{
@@ -112,18 +112,15 @@ user-select: none;
 
 	.landscape #msgAudPar
 	{    
-		display: inline-block;
-		font-size: 1em;
-		padding: 0.2em;
-		border: 1px solid white;
-		border-radius: 0.3em;
-		vertical-align: middle;
-		margin-top:0.2em;
-		float: left;
-		margin-left: 0.3em;
-		height: 1em;
-		line-height: 100%;
-		background-color: darkgoldenrod;
+		    display: inline-block;
+		    border: 2px solid white;
+		    border-radius: 5px;
+		    margin-top: 2px;
+		    /* float: left; */
+		    margin-left: 0.3em;
+		    height: 22px;
+		    width: 22px;
+		    overflow: hidden;
 	}
 	.landscape .sendArea .editor{width: calc(100% - 90px);vertical-align:middle;background-color:white;display: inline-block;padding:4px;border:1px solid gray;min-height: 1em;text-align: left}
 	.landscape .sendArea img.blue{width: 15px; height: 15px;vertical-align:middle;}
@@ -175,12 +172,36 @@ user-select: none;
 }
 
 .searchType{
-	border:1px solid snow; padding: 20px; margin: 5px; border-radius: 5px;
+	padding-top: 10px;
 }
+.searchType .title{margin-bottom: 2px;display: inline-block;}
+.searchType .foot{margin-top: 5px; text-align: right;}
 .searchItem{
-	border:1px solid silver; padding: 3px; margin: 5px; box-shadow: 1px 1px 5px gray; border-radius: 5px;
+	 padding:5px 0px;
 }
-.searchItem .side1{display: inline-block;vertical-align: middle;width: 70px;}
-.searchItem .side1 img{height: 50px;width: 50px;object-fit: scale-down; border-radius:5px;background-color: black;vertical-align: middle; }
+.searchItem:not(:last-child){border-bottom: 1px solid gray;}
+.searchItem .side1{display: inline-block;vertical-align: middle;width: 55px;border-radius: 5px;overflow: hidden;}
+.searchItem .side1 img{height: 50px;width: 50px;object-fit: scale-down; border-radius:5px;background-color: silver;vertical-align: middle; }
 .searchItem .side2{display: inline-block;vertical-align: middle;width: calc(80% - 18px);margin-left: 10px}
 .searchItem.mode1{padding:10px !important;}
+
+.text-avatar{
+	width: 100%; position: relative;
+}
+.text-avatar:after{
+	content:"";
+	padding-top:100%;
+	display: block;
+}
+.text-avatar .av-label{
+	display: block;position: absolute;
+	height: 70%;width: 100%;
+	top:15%;
+}
+.text-avatar .av-label span{
+	display: inline-block;
+	vertical-align: middle;
+    text-align: center;
+    width: 100%;
+    font-family: sans-serif;
+}
