@@ -248,6 +248,7 @@ UserInfo.requiredList=null;
 UserInfo.table='UserInfoTb';
 UserInfo.existingList=null;
 UserInfo.autoLoadAll=true;
+UserInfo.requestCount=25;
 
 
 UserInfo.set=function(arg)
@@ -259,8 +260,10 @@ UserInfo.set=function(arg)
 	    {
 	        if(arg[i] instanceof UserInfo)
 	            tmp=arg[i];
-	        else
+	        else if(arg[i] instanceof Profile)
 	            tmp=new UserInfo(arg[i].uid,(arg[i].firstName+" "+arg[i].middleName+" "+arg[i].lastName).replace(/\s+/g,' '),arg[i].picture);
+	        else
+	        	tmp=new UserInfo(arg[i].uid,arg[i].title,arg[i].picture);//user summery object
 	        
 	        UserInfo.list[arg[i].uid]=tmp;
 	        if(UserInfo.requiredList){
@@ -283,6 +286,7 @@ UserInfo.get=function(uid,callback)
 {
 	if(callback)UserInfo.getCallback=callback;
 	if(!UserInfo.loadList)UserInfo.loadList=[];
+	if(!UserInfo.list)UserInfo.list={};
 	
 	if(uid instanceof Array){
 		UserInfo.requiredList=uid;
@@ -312,7 +316,10 @@ UserInfo.get=function(uid,callback)
 							if(!UserInfo.requiredList)o=new UserInfo(uid,"other User",null);
 					}
 					if(UserInfo.requiredList){if(o)UserInfo.requiredList[UserInfo.requiredList.indexOf(o.uid)]=o;UserInfo.requiredIndex++;UserInfo.get();}
-					else if(UserInfo.getCallback && o)UserInfo.getCallback(o);
+					else if(UserInfo.getCallback && o){
+						UserInfo.getCallback(o);
+						UserInfo.getCallback=null;//reset to avoid next calls
+					}
 					
 					
 				};
@@ -333,7 +340,10 @@ UserInfo.get=function(uid,callback)
 			if(has_unknown){
 				UserInfo.loadUnknowns(UserInfo.get);
 			}else{
-				if(UserInfo.getCallback)UserInfo.getCallback(UserInfo.requiredList);
+				if(UserInfo.getCallback){
+					UserInfo.getCallback(UserInfo.requiredList);
+					UserInfo.getCallback=null;//reset
+				}
 				UserInfo.requiredList=null;
 			}
 		}
@@ -359,9 +369,9 @@ UserInfo.save=function(arg)
 };
 UserInfo.load=function(uids)
 {
-	UserInfo.list={};
+	if(!UserInfo.list)UserInfo.list={};
 	if(UserInfo.useIDB){
-		//doesent required to load all from indexed db
+		if(uids instanceof Array)UserInfo.loadUnavailables(uids,true);//keep in memory
 	}else if(typeof(localStorage)!="undefined")
 	{
 	    var sui=localStorage.getItem("userinfo"+FollowContact.uid);
@@ -433,8 +443,9 @@ UserInfo.parse=function(a)
 UserInfo.loadUnknowns=function(callback)
 {
 	if(callback)UserInfo.loadCallback=callback;
-	if(!UserInfo.loadList)UserInfo.loadList=[];
+	if(!UserInfo.loadList)UserInfo.loadList=[];//avoid exception
 	if(UserInfo.loadList.length>0){
+		/*
 		UserInfo.loadIndex=0;
 		var servers=UniversalServer.getServer(0);
 		var pat=/\w+(\d+)/;var id=NaN;
@@ -449,6 +460,7 @@ UserInfo.loadUnknowns=function(callback)
 					}
 				}
 			}
+			
 			if(clist.length>0){
 				var n=new NetData();
 				n.url=servers[i].url+"client/profile/search/";
@@ -460,24 +472,45 @@ UserInfo.loadUnknowns=function(callback)
 			}
 		}
 		UserInfo.loadList.length=0;
+		*/
+		var clist=[];
+		while(UserInfo.loadList.length>0 && clist.length<=UserInfo.requestCount){
+			clist.push(UserInfo.loadList.pop());
+		}
+		if(clist.length>0){
+			var n=new NetData();
+			n.url=FollowContact.summeryServer+"client/UserSummery/search/";
+			n.method="POST";
+		    n.callback=UserInfo.loadUnknownsCallback;
+		    n.add("data",clist.join(',')).commit();
+		    //UserInfo.loadIndex++;
+		}
 	}
 };
 UserInfo.loadUnknownsCallback=function(res)
 {
-	var pat=/Server\sPrefix\:\s(\w+)/;
+	/*var pat=/Server\sPrefix\:\s(\w+)/;
 	var prefix_res=pat.exec(res);
 	Profile.activePrefix=prefix_res[1];
 	
 	var profiles=Profile.parseXml(res);
+	*/
+	var profiles=JSON.parse(res);
 	var res=UserInfo.set(profiles);
 	UserInfo.save(res);
-	UserInfo.loadIndex--;
+	//UserInfo.loadIndex--;
+	/*
 	if(UserInfo.loadIndex===0){
 		if(!UserInfo.useIDB)UserInfo.save();
 		if(UserInfo.requiredList)UserInfo.get();//continue to get or run callback
 		if(UserInfo.loadCallback)UserInfo.loadCallback();
+	}*/
+	if(UserInfo.loadList.length>0){
+		UserInfo.loadUnknows();
+	}else{
+		UserInfo.get();//continue to get or run callback
+		FollowContact.ready();//trigger people ready to continue the apps
 	}
-	FollowContact.ready();//trigger people ready to continue the apps
 };
 UserInfo.getDB=function()
 {
@@ -514,7 +547,7 @@ UserInfo.dbGetBack=function(evt)
 	if(UserInfo.requiredList){if(o)UserInfo.requiredList[UserInfo.requiredList.indexOf(o.uid)]=o;UserInfo.requiredIndex++;UserInfo.get();}
 	else if(UserInfo.getCallback && o)UserInfo.getCallback(o);
 };
-UserInfo.loadUnavailables=function(ls)
+UserInfo.loadUnavailables=function(ls,keep)
 {
 	var req=UserInfo.getDB().transaction('userinfo','readonly').objectStore('userinfo').openCursor();
 	
@@ -523,7 +556,10 @@ UserInfo.loadUnavailables=function(ls)
 		var ls=this.ls;
 		if(cursor){
 			var index=ls.indexOf(cursor.value.uid);
-			if(index>-1)ls[index]=null;
+			if(index>-1){
+				ls[index]=null;
+				if(this.keep)UserInfo.list[cursor.value.uid]=cursor.value;
+			}
 			cursor.continue();
 		}else{
 			if(!UserInfo.loadList)UserInfo.loadList=[];
@@ -532,6 +568,7 @@ UserInfo.loadUnavailables=function(ls)
 		}
 	};
 	req.ls=ls;
+	req.keep=keep;//to load requested users to memory
 };
 UserInfo.loadNoneExists=function()
 {
@@ -685,7 +722,7 @@ ContactCheck.forward=function()
 	}
 	(new JetHtml(document.body)).trigger('contactchecked');
 	ContactCheck.listo={};//clear listo
-	UserInfo.get(Object.keys(FollowContact.list));
+	//UserInfo.get(Object.keys(FollowContact.list));
 	Libre.log(ContactCheck.uidList.length+" new contact(s) extracted.");
 };
 ContactCheck.runBack=function(res)
@@ -694,8 +731,9 @@ ContactCheck.runBack=function(res)
 	ContactCheck.watched=Date.now();
 	
 	var ls=JSON.parse(res);
-	Libre.work.show(res);
-	var o=null; var to_save=[];
+	//Libre.work.show(res);
+	var o=null; var to_save=[]; var Uinfos=[]; var tmp=null;
+	if(!UserInfo.list)UserInfo.list={};
 	for(var i=0;i<ls.length;i++){
 		o=null;
 		if(ContactCheck.listo[ls[i].phone]){
@@ -706,6 +744,12 @@ ContactCheck.runBack=function(res)
 			ContactCheck.listo[ls[i].email].uid=ls[i].uid;
 			ContactCheck.uidList.push(ls[i].uid);
 		}
+		tmp=new UserInfo(ls[i].uid,ls[i].title,ls[i].picture);
+		Uinfos.push(tmp);
+		UserInfo.list[ls[i].uid]=tmp;
+	}
+	if(Uinfos.length>0){
+		UserInfo.save(Uinfos);
 	}
 	if(ContactCheck.checkList.length>0)ContactCheck.run();
 	else ContactCheck.forward();

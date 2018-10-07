@@ -3,6 +3,14 @@ Libre.portraitMode=false;
 Libre.portraitLimit=1.2;
 
 function __init__(){
+  Libre.loadWD=new Watchdog(3000,{
+    '1':onLogedIn,
+    '2':configMessenger,
+    '3':checkDeviceContacts
+  });//events: login->peopleready->contactchecked
+
+  Gesture.config();
+  Gesture.callback=onGesture;
   Libre.promptClass="blue";
   prompt=Libre.prompt;
   alert=Libre.alert;
@@ -14,7 +22,8 @@ function __init__(){
   Libre.menu.addItem("<li class=\"hide\" id=\"closeAppBtn\" onclick=\"Messenger.closeApp()\"><img id=\"closeAppBtn\" src=\"res/images/png/close150.png\"/></li>");
 
   //Libre.menu.addTool("<li onclick=\"Libre\"><img id=\"settingsBtn\" src=\"res/images/svg/white-settings.svg\"/></li>");
-  var search_events=" onkeyup=\"Conversation.search(event.target.value,null,true);\"";
+  //var search_events=" onkeyup=\"Conversation.search(event.target.value,null,true);\"";
+  var search_events=" onkeyup=\"FLHome.onSearch(event);\"";
   Libre.menu.addTool("<li id=\"searchPan\" onclick=\"Libre\" title=\"Close The App\"><input type=\"text\" placeholder=\"search...\" id=\"searchTxb\""+search_events+"/></li>");
   Libre.menu.addTool("<li id=\"audienceTxb\"></li>");
   Libre.sidebar.visible(false);
@@ -23,29 +32,16 @@ function __init__(){
   LU.globalCallback=null;
   LU.login=false; LU.startedMessenger=false; LU.loadDeviceContact=false;//to avoid multiple configuration
   document.body.addEventListener("login",function(e){
-      if(!LU.login){
-        Libre.log('login...');
-        _("#splash").addClass('hide');//hide splash screen after login
-        Messenger.onHome();//show home dialog
-        Messenger.currentUID=CAuth.activeObject.uid;
-        FollowContact.uid=Messenger.currentUID;
-        UserInfo.getDB(); //connect to database
-        LU.peopleRoot=UniversalServer.getServer(3,
-        FollowContact.parseUid(FollowContact.uid,true)).url;
-        FollowContact.read();
-        UserInfo.load();
-        //Device
-        if(typeof(device)!="undefined"){
-          if(device.uuid){
-            Libre.log('updating device info...')
-            Device.cordova(Messenger.currentUID); //cordova jobs by jointab device
-          }
-        }
-        LU.login=true;
-      }
+      Libre.loadWD.callNext();
+  });
+  document.body.addEventListener("peopleready",function(e){
+      Libre.loadWD.done('1',true);
+  });
+  document.body.addEventListener("contactchecked",function(e){
+      Libre.loadWD.done('3',true);
   });
 
-  var startEvent="peopleready";
+  /*var startEvent="peopleready";
   contactEvent=null;
   if(typeof(cordova)!="undefined"){
     if(device){
@@ -56,27 +52,25 @@ function __init__(){
     }
   }
   document.body.addEventListener(startEvent,function(e){
-    if(!LU.startedMessenger){
-      Libre.log('Connected.');
-      Messenger.config();
-      Conversation.config();
-      ConvSetting.config();
-      //var msg=new Messenger(_("#workPan").source);
-      Conversation.install();
-      UserInfo.get(Messenger.currentUID,Messenger.showMeOnSidebar);
-      LU.startedMessenger=true;
-    }
+    onStartMessenger(null);
   });
   if(contactEvent){
     document.body.addEventListener(contactEvent,function(e){
-      if(!LU.loadDeviceContact){
-        Libre.log('Loading device contacts...');
-        //ContactCheck.config();//start to check contacts then trigger contactchecked to start messenger
-        setTimeout(ContactCheck.config,200);//check contacts after 200 ms
-        LU.loadDeviceContact=true;
-      }
+      onContactChecked(null);
     });
-  }
+  }*/
+  
+  /*document.body.addEventListener('peopleready',function(e){
+    configMessenger();
+    UserInfo.get(Messenger.currentUID,onGetMeCompleted);
+    if(typeof(cordova)!="undefined"){
+      if(device){
+        if(device.platform!="browser"){
+          checkDeviceContacts(null);//define on events.js
+        }
+      }
+    }
+  });*/
 
   //config bridges
   NetworkTransfer.bridge="client/Bridge/go/";
@@ -117,8 +111,13 @@ Libre.onResizeMessenger=function(){
     var m=parseInt(_("#mainMenuPan").source.getBoundingClientRect().height);
     var s=parseInt(_("#statusPan").source.getBoundingClientRect().height);
     var sp=parseInt(document.querySelector(".sendArea").getBoundingClientRect().height);
-    var separator=5;
+    var separator=0;
     document.querySelector(".messageArea").style.height="calc(100vh - "+(m+s+sp+separator)+"px)";
+    //document.querySelector("#messageArea"+Messenger.activeObject.index).style.height="calc(100vh - "+(m+s+sp+separator)+"px)";
+    //var msgPan=document.querySelector(".messengerPan");//parent
+    //var msgPan=msgPan.querySelector(".messengerPan");//child
+    //msgPan.style.height="calc(100vh - "+(m+s+sp+separator)+"px)";
+    //Libre.log('resizing: '+"#messageArea"+Messenger.activeObject.index);
 };
 
 Libre.checkOrientation=function(){

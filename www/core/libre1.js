@@ -59,11 +59,13 @@ Libre.sidebar.visible=function(visible,force)
 		if(Libre.sidebar.pined)_("#workPan").attr("class","workPanNormal");
 		//btnImage='setSidebar';
 		_("#sidebarBtn").source.style.transform="rotate(90deg)";
+		_("#sidebarBtn").source.style.webkitTransform="rotate(90deg)";
   }else{
   		if(Libre.sidebar.pined)Libre.sidebar.pin(false);
 		_("#sidebar").attr("class","sidebar sidebarFwork");
 		_("#workPan").attr("class","workPanFwork");
 		_("#sidebarBtn").source.style.transform="";
+		_("#sidebarBtn").source.style.webkitTransform="";
 	}
 	//_("#sidebarBtn").attr('src',Libre.images[btnImage]);
 };

@@ -159,7 +159,10 @@ CMessage.onUnsend=function(e)
 };
 CMessage.onFlag=function(e)
 {
-	CMOption.update([Popup.eventObject.lObj.id],2);
+	var msg=Popup.eventObject.lObj;
+	CMOption.update([msg.id],2);
+	msg.options=msg.options?parseInt(msg.options)|2:2;
+	Conversation.storeMessages(msg);//update the message on client
 };
 CMessage.onCopyToClipboard=function(e)
 {
@@ -304,22 +307,20 @@ Messenger.appId=6;
 Messenger.appList=null;
 Messenger.activeAppId=null;
 Messenger.showingHolder=null;
+Messenger.showingMessage=null;
 
 
-Messenger.setAvailable=function(availMode)
-{
-	
-};
 Messenger.config=function()
 {
 	Jet.App.register('Messenger',Messenger);
 	Jet.App.form.Messenger={};
 	//Jet.App.form.Messenger[1]="<div class=\"messageArea\" id=\"messageArea%index%\"></div><div class=\"sendArea h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\"/><input id=\"inputTxb%index%\" onkeypress=\"Messenger.list[%index%].checkInput(event)\"/><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div>";
-	Jet.App.form.Messenger[1]="<table style=\"height: 100%;width: 100%\" cellspacing=\"0px\"><tr><td style=\"word-break:break-all;vertical-align: top;\"><div class=\"messengerPan infobox\"><div class=\"messageArea\" id=\"messageArea%index%\"></div></div><div class=\"sendArea h-setbox\"><div id=\"attachArea\" class=\"hide\"><ul><li><img src=\"res/image/png/call.png\"/></li><li onclick=\"Messenger.buildEmojies();\"><img src=\"res/image/png/emojies/1F600.png\"/></li><li onclick=\"Messenger.buildApps();\"><img src=\"res/image/png/app.png\"/></li></ul><div id=\"attachBoard\"></div></div><div class=\"h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\" onclick=\"_('#attachArea').toggleClass('hide');\"/><div contenteditable=\"true\" class=\"editor\" id=\"inputTxb\" onkeyup=\"Messenger.list[%index%].checkInput(event)\"></div><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div></div></div></td><td class=\"messengerAppArea hide\"></td></tr></table>";
+	Jet.App.form.Messenger[1]="<tr><td style=\"word-break:break-all;vertical-align: top;\"><div class=\"messengerPan infobox\"><div class=\"messageArea\" id=\"messageArea%index%\"></div></div><div class=\"sendArea h-setbox\"><div id=\"attachArea\" class=\"hide\"><ul><li><img src=\"res/image/png/call.png\"/></li><li onclick=\"Messenger.buildEmojies();\"><img src=\"res/image/png/emojies/1F600.png\"/></li><li onclick=\"Messenger.buildApps();\"><img src=\"res/image/png/app.png\"/></li></ul><div id=\"attachBoard\"></div></div><div class=\"h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\" onclick=\"_('#attachArea').toggleClass('hide');\"/><div contenteditable=\"true\" class=\"editor\" id=\"inputTxb\" onkeyup=\"Messenger.list[%index%].checkInput(event)\"></div><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div></div></div></td><td class=\"messengerAppArea hide\"><div id=\"msgAppParent\"></div></td></tr>";
 	Jet.App.form.Messenger[2]="";
 	
 	
-	Jet.App.form.Messenger1cssClass="messengerPan infobox";
+	Jet.App.form.Messenger1cssClass="workingTable";
+	Jet.App.form.Messenger1par="table";
 	Jet.App.form.Messenger.userOperation="";
 	Jet.App.form.Messenger.ownerOperation=Jet.App.form.Messenger.userOperation+
 	"";
@@ -344,6 +345,7 @@ Messenger.buildForm=function(o,view,par)
 {
 	Messenger.activeObject=o;
 	var ctrl=Jet.App.buildForm(o,view,par,"Messenger");
+	ctrl.setAttribute("cellspacing","0");
 	o.dialog=ctrl;
 	Messenger.buildEmojies();
 	Libre.onResize(); //also set fixed size to MessageArea
@@ -483,10 +485,6 @@ Messenger.receive=function()
 	LU.globalCallback=Messenger.receiveBack;
 	CMessage.receive(null,Messenger.lastMoment,"",Messenger.clearOnRead);
 };
-Messenger.install=function()
-{
-	
-};
 Messenger.buildEmojies=function()
 {
 	var aboard=document.getElementById('attachBoard');
@@ -521,6 +519,8 @@ Messenger.setEmoji=function(emcode)
 	        range.deleteContents();
 	        range.insertNode( img );
 	        Messenger.selectEnd();
+	    }else{
+	    	inputTxb.appendChild(img);//add emoji to the end of the input box
 	    }
 	} else if (document.selection && document.selection.createRange) {
 	    //document.selection.createRange().text = text;
@@ -594,11 +594,12 @@ Messenger.onOpenApp=function(appid,msg)
 	Libre.sidebar.visible(false);
 	_(".messengerAppArea").removeClass("hide");
 	_("#closeAppBtn").removeClass("hide");
-	var msgAppArea=Messenger.activeObject.dialog.querySelector('.messengerAppArea');
+	var msgAppPar=Messenger.activeObject.dialog.querySelector('#msgAppParent');
 	if(appClass.loaded){
 		//msg=Object.create(msg);
 		//msg.value=CryptoJS.AES.decrypt((msg.value),Messenger.activeObject.secureKey).toString(CryptoJS.enc.Utf8);
-		appClass.openByCuad(msg,msgAppArea);
+		msgAppPar.style.height="calc(100% - "+document.querySelector('.sendArea').offsetHeight+"px)";
+		appClass.openByCuad(msg,msgAppPar);
 	}else{
 		appClass.loadResourceCallback=function(){
 			Messenger.onOpenApp(Messenger.activeAppId,arguments.callee.msg);
@@ -648,7 +649,7 @@ Messenger.buildApps=function()
 };
 Messenger.closeApp=function()
 {
-	document.querySelector(".messengerAppArea").innerHTML="";
+	document.querySelector("#msgAppParent").innerHTML="";
 	_(".messengerAppArea").addClass("hide");
 	_("#closeAppBtn").addClass("hide");
 	document.querySelector(".messageArea").style.display="";
@@ -666,15 +667,42 @@ Messenger.isShowing=function(msg)
 };
 Messenger.onHome=function()
 {
+	if(Messenger.activeObject)Messenger.activeObject.exit();
+	_("#msgAudPar").addClass('hide');
 	FLHome.show(_('#workPan').source);
 };
 Messenger.onSetting=function()
 {
+	if(Messenger.activeObject)Messenger.activeObject.exit();
+	_("#msgAudPar").addClass('hide');
 	FLSetting.show(_('#workPan').source);
 };
-Messenger.onFlag=function()
+Messenger.showFlags=function(res)
 {
-	Libre.log('Flags are not ready yet.');
+	if(typeof(res)=="undefined"){
+		Messenger.onHome();//go to homepage
+		Conversation.searchMessage("",null,0,50,2,Messenger.showFlags);//search in messages, here '2' is an option to search only flaged messages
+	}else{
+		var items=[];var pos=0;
+		for(var i=0;i<res.length;i++){
+			pos=100;
+			items.push(new SearchItem(
+					UserInfo.list[res[i].conv].title,
+					res[i].value.substring(0,pos),
+					CloudFile.getUrlByCode(UserInfo.list[res[i].conv].picture),
+					Messenger.navigate,
+					res[i],
+					res[i].id
+				));
+		}
+		if(items.length>0){
+			_("#resultArea").source.innerHTML="";
+			var stype=new SearchType('Flaged Messages','msg',10,items);
+			SearchType.buildForm(stype,1,"resultArea");
+		}else{
+			_("#resultArea").value("There is no flaged message yet.");
+		}
+	}
 };
 Messenger.showMeOnSidebar=function(uinfo)
 {
@@ -687,6 +715,23 @@ Messenger.onLogout=function()
 {
 	if(confirm('are you sure to logout?')){
 		CAuth.logout(function(){window.location.href='login.html';});
+	}
+};
+Messenger.navigate=function(msg)
+{
+	if(msg){
+		Messenger.showingMessage=msg;
+		Conversation.start(msg.conv,Messenger.navigate);
+	}else{
+		Messenger.scrollTo(Messenger.showingMessage);
+	}
+};
+Messenger.scrollTo=function(msg)
+{
+	var dialog=_("#MSG_"+Messenger.showingMessage.id).source;
+	if(Messenger.activeObject){
+		var ma=Messenger.activeObject.dialog.querySelector('.messageArea');
+		ma.scrollTop=dialog.offsetTop-10;
 	}
 };
 
@@ -708,6 +753,7 @@ Conversation.showingContact=0;
 Conversation.allUIDs=null;
 Conversation.contactIndex=0;
 Conversation.activeParam=null;
+Conversation.startCallback=null;
 Conversation.db=null;
 Conversation.convOS=null;
 Conversation.msgOS=null;
@@ -789,23 +835,28 @@ Conversation.load=function(uid,stato)
 		//Conversation.loadMessages(uid);
 	};
 };
-Conversation.search=function(param,order,contacts,dl,ul)
+Conversation.search=function(param,order,contacts,dl,ul,callback)
 {
 	_("#convArea").source.innerHTML=''; _("#contactArea").source.innerHTML='';
 	param=param.toLowerCase();
 	if(!Conversation.listo)Conversation.listo={};
-	var request=Conversation.db.transaction(['convOS'],'readonly').objectStore('convOS').openCursor().onsuccess=function(e){
+	var request=Conversation.db.transaction(['convOS'],'readonly').objectStore('convOS').openCursor();
+	Conversation.listo={};//clear the list
+	request.onsuccess=function(e){
 		var cursor=e.target.result;
 		if(cursor){
-			if(cursor.value.title.toLowerCase().indexOf(param)>=0){
+			if(cursor.value.title.toLowerCase().indexOf(this.param)>=0){
 				Conversation.buildForm(cursor.value,2,"convArea");
 				Conversation.listo[cursor.value.uid]=cursor.value; //keep conversation somewhere
 			}
 			cursor.continue();
 		}else{
-			if(contacts)Conversation.showContacts(param,true);
+			if(this.callback)this.callback(Conversation.listo);
+			else if(contacts)Conversation.showContacts(param,true);
 		}
 	};
+	request.callback=callback;
+	request.param=param;
 };
 Conversation.config=function()
 {
@@ -839,21 +890,17 @@ Conversation.buildForm=function(o,view,par)
 	if(view==2){
 		c.setAttribute("onclick","Conversation.start('%uid%');".replace('%uid%',o.uid));
 		c.setAttribute("id","conversation"+o.uid);
-		
+		c.setAttribute("uid",o.uid);
 		_("#convCount"+o.uid).value('0');
 		_("#convCount"+o.uid).addClass('hide');
 	}
 	return c;
 };
-Conversation.listItems=function(res)
-{
-	
-};
-Conversation.start=function(uid)
+Conversation.start=function(uid,callback)
 {
 	//update conversation id first
 	ConvStat.get(Messenger.currentUID,uid);
-	
+	Conversation.startCallback=callback;
 	//remove from contactArea
 	var ctrl=_("#contactArea").source.querySelector('#conversation'+uid);
 	if(ctrl)ctrl.parentElement.removeChild(ctrl);
@@ -920,11 +967,9 @@ Conversation.configMessenger=function(conv)
 	Conversation.audIconPopup.items[1].command.uid=conv.uid;
 	//load messages
 	
-	var parts=conv.title.split(/\s+/);
-	var abr=parts[0][0].toUpperCase();
-	if(parts[1])abr+=parts[1][0].toUpperCase();
-	_("#msgAud").value(abr);
-	_("#msgAud").source.setAttribute("title",conv.title);
+	_("#msgAudPar").removeClass('hide');
+	TextAvatar.getTextAvatar(conv.title,"msgAudPar",null,null,2);
+	
 };
 Conversation.UInfoSetTitle=function(uinfo)
 {
@@ -971,7 +1016,15 @@ Conversation.stepShowContact=function()
 };
 Conversation.defaultImage=function(e)
 {
-	e.target.setAttribute("src","res/image/png/user.png");
+	var avatar=document.createElement('span');
+	avatar.setAttribute("class","avatar");
+	var title=e.target.parentElement.getAttribute('title');
+	
+	e.target.parentElement.insertBefore(avatar,e.target);
+	e.target.parentElement.removeChild(e.target);
+	
+	TextAvatar.getTextAvatar(title,avatar,null,null,2);
+	//e.target.setAttribute("src","res/image/png/user.png");
 };
 Conversation.storeMessages=function(messages)
 {
@@ -1016,6 +1069,10 @@ Conversation.loadMessages=function(uid)
 			}
 			if(Messenger.setting.broadcastSeenTime && lastSeen>0)ConvStat.update(lastSeen,Messenger.currentUID,Conversation.activeObject.id);
 			Messenger.checkLastStatus();
+			if(Conversation.startCallback){
+				Conversation.startCallback();
+				Conversation.startCallback=null;
+			}
 		}
 	};
 };
@@ -1037,6 +1094,69 @@ Conversation.setId=function(res)
 {
 	Conversation.activeObject.id=parseInt(res);
 };
+Conversation.delete=function(uid,del_conversation)
+{
+	var index=Conversation.db.transaction(['msgOS'],'readwrite').objectStore('msgOS').index("sortConv");
+	
+	var req=index.openCursor(IDBKeyRange.bound([uid,0],[uid,parseInt(Date.now()/1000)]));
+	req.onsuccess=function(e){
+		var cursor=e.target.result;
+		if(cursor){
+			cursor.delete(); //delete object
+			cursor.continue();
+		}else{
+			var callback=function(){
+				Conversation.deleteFinalyze(arguments.callee.audience);
+			};
+			callback.audience=this.audience;
+			CMOption.deleteAll(null,this.audience,callback);
+		}
+	};
+	req.audience=uid;
+	
+	if(del_conversation){
+		var request=Conversation.db.transaction(['convOS'],'readwrite').objectStore('convOS').delete(uid);
+	}
+};
+Conversation.deleteFinalyze=function(audience)
+{
+	if(Messenger.targetUID==audience){
+		Messenger.activeObject.exit();
+		Messenger.onHome();
+	}
+	Libre.log('The conversation has been deleted.');
+	if((conv=_("#conversation"+audience))){
+		conv.source.parentElement.removeChild(conv.source);
+	}
+};
+Conversation.searchMessage=function(param,uid,dl,count,option,callback)
+{
+	var keyrange=null;
+	if(uid){
+		var place=Conversation.db.transaction(['msgOS'],'readwrite').objectStore('msgOS').index("sortConv");
+		keyrange=IDBKeyRange.bound([uid,0],[uid,parseInt(Date.now()/1000)]);
+	}else{
+		var place=Conversation.db.transaction(['msgOS'],'readwrite').objectStore('msgOS');
+	}
+	var req=place.openCursor(keyrange);
+	req.onsuccess=function(e){
+		var cursor=e.target.result;
+		if(cursor && this.out_result.length<this.count){
+			if((!this.audience || cursor.value.conv==this.audience)&&(!this.option || (cursor.value.options&this.option)>0)){
+				if(cursor.value.value.indexOf(param)>-1)this.out_result.push(cursor.value);
+			}
+			cursor.continue();
+		}else{
+			if(this.callback)this.callback(this.out_result);
+		}
+	};
+	req.audience=uid;
+	req.param=param;
+	req.count=count?count:10;
+	req.out_result=[];
+	req.callback=callback;
+	req.option=option;
+};
 
 function ConvSetting(uid,skey)
 {
@@ -1054,7 +1174,7 @@ ConvSetting.config=function()
 {
 	Jet.App.register('ConvSetting',ConvSetting);
 	Jet.App.form.ConvSetting={};
-	Jet.App.form.ConvSetting[1]="<div class=\"ContactSetting\"><img id=\"profilePic\" onerror=\"ConvSetting.onErrorImage(event)\"/></div><table><tr><td>Security Key</td><td><input class=\"textbox\" onchange=\"ConvSetting.onChangeKey(event);\" value=\"%skey%\"/></td></tr><tr><td></td><td><hr/></td></tr><tr><td>Storage</td><td><button class=\"blue btn\" onclick=\"Conversation.clearMessages('%uid%');\"> Delete messages </button>&nbsp; &nbsp;<button class=\"red btn\" onclick=\"Conversation.clearMessages('%uid%');Conversation.remove('%uid%');\"> Delete the conversation </button></td></tr></table>";
+	Jet.App.form.ConvSetting[1]="<div class=\"ContactSetting\"><img id=\"profilePic\"/></div><table><tr><td>Security Key</td><td><input class=\"textbox\" onchange=\"ConvSetting.onChangeKey(event);\" value=\"%skey%\"/></td></tr><tr><td></td><td><hr/></td></tr><tr><td>Storage</td><td><p><button class=\"blue btn\" onclick=\"Conversation.delete('%uid%',false);\"> Delete messages and keep the audience on the list </button></p><p><button class=\"red btn\" onclick=\"Conversation.delete('%uid%',true);Conversation.remove('%uid%');\"> Delete the conversation and all messages </button></p></td></tr></table>";
 	Jet.App.form.ConvSetting[2]="";
 	
 	Jet.App.form.ConvSetting.userOperation="";
@@ -1109,15 +1229,18 @@ function CMOption()
 CMOption.table='cmopt';
 
 
-CMOption.install=function()
-{
-	
-};
 CMOption.update=function(ids,option,uid)
 {
 	var n=new NetData();
 	n.url="client/CMOption/update/";
 	n.add('ids',JSON.stringify(ids),true).add('option',option).commit();
+};
+CMOption.deleteAll=function(uid,audience,callback)
+{
+	var n=new NetData();
+	n.url="client/CMOption/deleteAll/";
+	if(callback)n.callback=callback;
+	n.add('audience',audience).commit();
 };
 
 function CMStatus()
@@ -1136,19 +1259,11 @@ function CMStatus()
 CMStatus.table='cmstat';
 
 
-CMStatus.install=function()
-{
-	
-};
 CMStatus.update=function(ids,option,timing)
 {
 	var n=new NetData();
 	n.url="client/CMStatus/update/";
 	n.add('ids',JSON.stringify(ids),true).add('option',option).commit();
-};
-CMStatus.perform=function(msgs)
-{
-	
 };
 
 function ConvStat(uid,conversation,receive,seen)
@@ -1166,10 +1281,6 @@ this.uid=uid?uid:null; this.conversation=conversation?conversation:0; this.lastR
 ConvStat.table='conestat';
 
 
-ConvStat.install=function()
-{
-	
-};
 ConvStat.status=function(uid,conversation,callback)
 {
 	var n=new NetData();n.onerror=null;

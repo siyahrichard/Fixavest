@@ -572,11 +572,12 @@ Messenger.onCreateApp=function(appid)
 		var msg=new CMessage('',data,Messenger.currentUID,Messenger.activeObject.targetUID,Messenger.appId,appid,0);
 		msg.status=32; //set as bidirectional message
 		var date=new Date(Date.now());
-		msg.moment={year:date.getFullYear(),'month':date.getMonth()+1,'day':date.getDate(),'hour':date.getHours(),'minute':date.getMinutes(),'second':date.getSeconds()};
-		CMessage.show(Messenger.activeObject,msg,true,data);
+		//CMessage.show(Messenger.activeObject,msg,true,data);
 		msg.moment=strStamp;
 		//msg.value=CryptoJS.AES.encrypt(msg.value,Messenger.activeObject.secureKey).toString();
 		Messenger.activeObject.send(msg);
+		//convert moment to object rather than string
+		msg.moment={year:date.getFullYear(),'month':date.getMonth()+1,'day':date.getDate(),'hour':date.getHours(),'minute':date.getMinutes(),'second':date.getSeconds()};
 	}else{
 		appClass.loadResourceCallback=function(){
 			Messenger.onCreateApp(arguments.callee.appid);

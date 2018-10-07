@@ -13,14 +13,14 @@ user-select: none;
 #attachArea{text-align: left;}
 #msgAud{vertical-align: middle;}
 .messengerPan{background-color: #FBF3E8;height: 100%;position: relative;}
-.messageArea{background-image: url('../image/svg/petite.svg');background-repeat: no-repeat;background-size: contain;background-color: #FBF3E8;overflow-y: auto;height: 80%;}
+.messageArea{background-image: url('../image/svg/petite.svg');background-repeat: no-repeat;background-size: contain;background-color: #FBF3E8;overflow-y: scroll;overflow-x:hidden;height: 80%;}
 .messageArea hr{clear: both;visibility: hidden;}
 
 .itMessage{position:relative;margin-left:1em;background-color: #E0F7DD; border-radius:0.7em; border:1px solid darkgreen;max-width: 80%; padding:0.7em;margin-top:10px;margin-bottom: 10px;display: inline-block;float:left;padding-bottom: 2px}
 .myMessage{position:relative;margin-right:1em;background-color: #F7F6DD; border-radius: 0.7em; border:1px solid orange;max-width: 80%; padding:0.7em;margin-top:10px;margin-bottom: 10px;display: inline-block;float:right;padding-bottom: 2px}
 
 .myMessage:after {
-	content: '.';
+	content: '';
 	position: absolute;
 	right: 0;
 	top: 50%;
@@ -33,7 +33,7 @@ user-select: none;
 	margin-right: -0.625em;
 }
 .itMessage:after {
-	content: '.';
+	content: '';
 	position: absolute;
 	left: 0;
 	top: 50%;
@@ -58,7 +58,7 @@ user-select: none;
 .convList li:not(:first-child){border-bottom: 1px solid white}
 .convList li span{overflow:hidden;max-width: calc(100% - 3em - 25px);display: inline-block;vertical-align: middle;height: 1em;line-height: 1em;word-break: break-all;}
 .convList li:hover{box-shadow:0px 0px 2px deepskyblue}
-.convList .active{border-bottom: 2px solid orange}
+.convList .active{border-bottom: 2px solid orange !important}
 .convList .avatar{height: 1.5em; width: 1.5em;display: inline-block; object-fit: cover;vertical-align: middle;margin-right: 5px;border-radius: 5px}
 .convList .option{height: 1.5em; width: 0.5em; object-fit: scale-down;vertical-align: middle;margin-right: 10px;float:right;}
 .convList .msgCount{background-color:#D17D00;font-weight: bold;border-radius: 20px;border:2px solid yellow;padding:2px 4px;margin-top:3px;position: absolute;top:0px;left:0px;}
@@ -104,11 +104,11 @@ user-select: none;
 	.portrait #attachArea>ul>li>img{width: 30px; height: 30px;border: 2px solid royalblue;padding: 5px;background-color: dodgerblue;}
 	.portrait #attachBoard img{width: 30px;height: 30px;object-fit: scale-down;}
 	.portrait .messengerAppArea{width: 100vh;border-left: 1px solid silver;text-align: center;vertical-align: top}
-	.portrait .flagIcon:before{background-position-x: -372px !important;}
-	.portrait .editIcon:before{background-position-x: -275px !important;}
-	.portrait .deleteIcon:before{background-position-x: -83px !important;}
-	.portrait .copyIcon:before{background-position-x: 10px !important;}
-	.portrait .unsendIcon:before{background-position-x: -179px !important;}
+	.portrait .flagIcon:before{background-position-x: -74px !important;}
+	.portrait .editIcon:before{background-position-x: -55px !important;}
+	.portrait .deleteIcon:before{background-position-x: -16px !important;}
+	.portrait .copyIcon:before{background-position-x: 2px !important;}
+	.portrait .unsendIcon:before{background-position-x: -35px !important;}
 
 	.landscape #msgAudPar
 	{    
@@ -134,9 +134,9 @@ user-select: none;
 	.landscape .unsendIcon:before{background-position-x: -35px !important;}
 
 .convList,.menuList{list-style: none;}
-.menuList{margin:-5px; background-color: #042066;border-radius:0px 0px 100% 20%;padding:10px;}
+.menuList{margin:-7px; background-color: #042066;border-bottom-right-radius:20px;padding:10px;}
 .menuList li{cursor: pointer;margin:var(--size20) auto;}
-#profilePan {margin-bottom: 30px}
+#profilePan {margin-bottom: 15px;margin-top: 15px}
 #profilePan img{height: 2em;width: 2em;object-fit: cover;vertical-align: middle;border-radius: 5px; border:2px solid white;}
 #profilePan span{margin-left: 5px;text-overflow: ellipsis;display: inline-block;height: 1em;width: calc(100% - 55px);overflow: hidden;word-break: break-all;}
 
@@ -185,6 +185,10 @@ user-select: none;
 .searchItem .side2{display: inline-block;vertical-align: middle;width: calc(80% - 18px);margin-left: 10px}
 .searchItem.mode1{padding:10px !important;}
 
+.workingTable{
+	height: 100%;width: 100%;
+}
+
 .text-avatar{
 	width: 100%; position: relative;
 }
@@ -198,9 +202,9 @@ user-select: none;
 	height: 70%;width: 100%;
 	top:15%;
 }
-.text-avatar .av-label span{
-	display: inline-block;
-	vertical-align: middle;
+.text-avatar .av-label .av-content{
+	/*display: inline-block;
+	vertical-align: top;*/
     text-align: center;
     width: 100%;
     font-family: sans-serif;

@@ -54,7 +54,7 @@ CAuth.beforeSend=function(nt)
 	url=url.replace(/\/\//g,"/"); //convert all duplicated slash to one //=>/
 	url=url.replace(/\:\//,"://"); //convert first scheme slash to double https:/host => https://host
 	nt.target=url;
-	nt.method="GET"; //cordova not supports post request
+	//nt.method="GET"; //cordova not supports post request
 	//add authorize parameters
 	if(CAuth.activeObject){
 		if(CAuth.activeObject.session){

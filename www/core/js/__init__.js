@@ -3,6 +3,14 @@ Libre.portraitMode=false;
 Libre.portraitLimit=1.2;
 
 function __init__(){
+  Libre.loadWD=new Watchdog(3000,{
+    '1':onLogedIn,
+    '2':configMessenger,
+    '3':checkDeviceContacts
+  });//events: login->peopleready->contactchecked
+
+  Gesture.config();
+  Gesture.callback=onGesture;
   Libre.promptClass="blue";
   prompt=Libre.prompt;
   alert=Libre.alert;
@@ -24,7 +32,13 @@ function __init__(){
   LU.globalCallback=null;
   LU.login=false; LU.startedMessenger=false; LU.loadDeviceContact=false;//to avoid multiple configuration
   document.body.addEventListener("login",function(e){
-      onLogedIn(null);//define on events.js
+      Libre.loadWD.callNext();
+  });
+  document.body.addEventListener("peopleready",function(e){
+      Libre.loadWD.done('1',true);
+  });
+  document.body.addEventListener("contactchecked",function(e){
+      Libre.loadWD.done('3',true);
   });
 
   /*var startEvent="peopleready";
@@ -46,7 +60,8 @@ function __init__(){
     });
   }*/
   
-  document.body.addEventListener('peopleready',function(e){
+  /*document.body.addEventListener('peopleready',function(e){
+    configMessenger();
     UserInfo.get(Messenger.currentUID,onGetMeCompleted);
     if(typeof(cordova)!="undefined"){
       if(device){
@@ -55,7 +70,7 @@ function __init__(){
         }
       }
     }
-  });
+  });*/
 
   //config bridges
   NetworkTransfer.bridge="client/Bridge/go/";
@@ -96,8 +111,13 @@ Libre.onResizeMessenger=function(){
     var m=parseInt(_("#mainMenuPan").source.getBoundingClientRect().height);
     var s=parseInt(_("#statusPan").source.getBoundingClientRect().height);
     var sp=parseInt(document.querySelector(".sendArea").getBoundingClientRect().height);
-    var separator=5;
+    var separator=0;
     document.querySelector(".messageArea").style.height="calc(100vh - "+(m+s+sp+separator)+"px)";
+    //document.querySelector("#messageArea"+Messenger.activeObject.index).style.height="calc(100vh - "+(m+s+sp+separator)+"px)";
+    //var msgPan=document.querySelector(".messengerPan");//parent
+    //var msgPan=msgPan.querySelector(".messengerPan");//child
+    //msgPan.style.height="calc(100vh - "+(m+s+sp+separator)+"px)";
+    //Libre.log('resizing: '+"#messageArea"+Messenger.activeObject.index);
 };
 
 Libre.checkOrientation=function(){

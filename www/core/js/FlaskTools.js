@@ -378,14 +378,15 @@ TextAvatar.getTextAvatar=function(arg,par,odds,evens,count,style)
 	var color=TextAvatar.getColorsOf(arg);
 	var d=document.createElement('div');
 	d.setAttribute('class',style);
+	var poser=document.createElement('div');
+	poser.setAttribute('class','av-label');
 	var cnt=document.createElement('div');
-	cnt.setAttribute('class','av-label');
-	var span=document.createElement('span');
-	span.innerHTML=title.toUpperCase();
-	cnt.appendChild(span);
+	cnt.setAttribute('class','av-content');
+	cnt.innerHTML=title.toUpperCase();
+	poser.appendChild(cnt);
 	d.style.color=color[0];
 	d.style.backgroundColor=color[1];
-	d.appendChild(cnt);
+	d.appendChild(poser);
 	
 	if(par){
 		par=typeof(par)=="string"?document.getElementById(par):par;
@@ -393,7 +394,8 @@ TextAvatar.getTextAvatar=function(arg,par,odds,evens,count,style)
 		par.appendChild(d);
 		var rect=d.getBoundingClientRect();
 		var cent=rect.height/100;
-		span.style.fontSize=parseInt(cent*70)+"px";
+		cnt.style.fontSize=parseInt(cent*70)+"px";
+		cnt.style.lineHeight=parseInt(cent*70)+"px";
 	}
 	
 	return d;

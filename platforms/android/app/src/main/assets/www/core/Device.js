@@ -18,7 +18,7 @@ this.option=option?option:0; this.status=status?status:0; this.expiration=expira
 
 Device.table='device';
 Device.currentStatus=1;
-Device.activeDelay=120;
+Device.activeDelay=120000;
 Device.passiveDelay=600;
 Device.continuesStatusUpdate=true;
 Device.server='';
