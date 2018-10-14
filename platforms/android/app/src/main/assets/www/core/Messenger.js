@@ -25,7 +25,7 @@ CMessage.ownPopup=null;
 CMessage.audPopup=null;
 
 
-CMessage.send=function(o,server,targetServer,sendBack,errorBack)
+CMessage.send=function(o,server,targetServer)
 {
 	var n=new NetData();
 	n.url=server+"client/CMessage/income/";
@@ -33,31 +33,25 @@ CMessage.send=function(o,server,targetServer,sendBack,errorBack)
 	n.add("target",targetServer,true);
 	//n.callback=LU.globalCallback?LU.globalCallback:null;
 	n.callback=function(id){
-		var new_id=parseInt(id);
 		var msg=arguments.callee.lObj;
-		Messenger.onSendBack(msg,new_id);
+		msg.id=parseInt(id);
+		var showing=Messenger.isShowing(msg);
+		if(!showing)Messenger.messages.push(msg);//check it is not on the list
+		if(msg.value!="X" && (!showing || CMessage.activeDialog))CMessage.show(Messenger.activeObject,msg,true);
+		Messenger.getStatus(); //get status of sending message
 	};
-	if(errorBack){
-		n.onerror=function(res){
-			var msg=arguments.callee.lObj;
-			var callback=arguments.callee.callback;
-			callback(msg);
-		};
-		n.onerror.lObj=o;
-		n.onerror.callback=errorBack;
-	}
 	n.callback.lObj=o;
 	n.onerror=null;
 	_ajaxQ.add(n).run();
 };
-CMessage.receive=function(uid,moment,server,clear,errorCallback)
+CMessage.receive=function(uid,moment,server,clear)
 {
 	var n=new NetData();
-	n.url=(server?server:"")+"client/CMessage/receive/";
+	n.url=server+"client/CMessage/receive/";
 	n.add("time",moment,true); //uses unix timestamp rather than Moment
 	if(clear)n.add("clear",0);
 	n.callback=LU.globalCallback?LU.globalCallback:null;
-	n.onerror=errorCallback;
+	n.onerror=null;
 	_ajaxQ.add(n).run();
 };
 CMessage.show=function(messenger,msg,my,text)
@@ -70,8 +64,7 @@ CMessage.show=function(messenger,msg,my,text)
 	}
 	
 	var pan=document.createElement('div');
-	if(msg.id>0)pan.setAttribute('id',"MSG_"+msg.id);
-	else cssClass+=" sending";
+	pan.setAttribute('id',"MSG_"+msg.id);
 	Popup.set(pan,popup);
 	pan.lObj=msg;
 	pan.setAttribute("class",cssClass);
@@ -205,12 +198,6 @@ Messenger.list[this.index]=this;
 this.targetServer="";
 this.currentServer="";
 
-if(target){
-	this.targetUID=target;
-	var skey=localStorage.getItem(Messenger.currentUID+"_"+target);
-	this.secureKey=skey?skey:"None";
-}
-
 if(par)Messenger.buildForm(this,1,par);
 if(!Messenger.messages)Messenger.messages=[];
 
@@ -221,16 +208,14 @@ Messenger.receive();
 if(Messenger.messages)Messenger.messages.length=0;
 else Messenger.messages=[];
 
+if(target){
+	this.targetUID=target;
+	var skey=localStorage.getItem(Messenger.currentUID+"_"+target);
+	this.secureKey=skey?skey:"None";
+}
+
 this.startDate=new Date(Date.now());
 	
-	this.send=function(o,sendBox)
-	{
-		var callback=null;
-		var errorCallback=sendBox?null:Messenger.errorSend;
-		CMessage.send(o,this.currentServer,this.targetServer!=this.currentServer?this.targetServer:"",callback,errorCallback);
-		//if(this.targetServer!=this.currentServer)CMessage.send(o,this.targetServer);
-		
-	};
 	this.selectContact=function(uid,phone)
 	{
 		if(uid){
@@ -239,6 +224,12 @@ this.startDate=new Date(Date.now());
 				this.targetServer=server.url;
 			}
 		}
+	};
+	this.send=function(o)
+	{
+		CMessage.send(o,this.currentServer,this.targetServer!=this.currentServer?this.targetServer:"");
+		//if(this.targetServer!=this.currentServer)CMessage.send(o,this.targetServer);
+		
 	};
 	this.onSend=function(event)
 	{
@@ -259,13 +250,12 @@ this.startDate=new Date(Date.now());
 			var date=new Date(Date.now());
 			msg.moment={year:date.getFullYear(),'month':date.getMonth()+1,'day':date.getDate(),'hour':date.getHours(),'minute':date.getMinutes(),'second':date.getSeconds()};
 		}
-		CMessage.show(this,msg,true,arg.trim());//shows in sending mode
+		//CMessage.show(this,msg,true,arg.trim());
 		var moment_backup=msg.moment;
 		msg.moment=strStamp;
-		var bvalue=msg.value;
 		msg.value=CryptoJS.AES.encrypt(msg.value,this.secureKey).toString();
 		this.send(msg);
-		msg.value=bvalue;
+		msg.value=CryptoJS.AES.decrypt((msg.value),Messenger.activeObject.secureKey).toString(CryptoJS.enc.Utf8);
 		msg.moment=moment_backup;
 		CMessage.activeObject=null; //clear CMessage.activeObject
 		console.log('sendText() has called');
@@ -289,25 +279,10 @@ this.startDate=new Date(Date.now());
 				this.sendText(event.target.innerHTML);
 				event.target.innerHTML="";//clear it
 			}
-		}else if(event.keyCode==8){
-			if(CMessage.activeObject){
-				if(!_("#inputTxb").source.innerHTML){
-					CMessage.activeObject=null; //if there is an editing message, stop editing it on cleaning all of the message
-				}
-			}
 		}
 	};
 	this.exit=function()
 	{
-		//save on draft
-		try{
-		var cnt=Messenger.purizeText(_("#inputTxb").value());
-			if(cnt){
-				localStorage.setItem('draftOf'+Messenger.activeObject.targetUID,cnt);//save to drafts
-			}
-		}catch(ex){
-			console.log(ex.message);
-		}
 		this.working=false;
 		Messenger.activeObject=null;
 		try{
@@ -333,9 +308,6 @@ Messenger.appList=null;
 Messenger.activeAppId=null;
 Messenger.showingHolder=null;
 Messenger.showingMessage=null;
-Messenger.sendBox=null;
-Messenger.connected=false;
-Messenger.resending=false;
 
 
 Messenger.config=function()
@@ -368,7 +340,6 @@ Messenger.config=function()
 	
 	CMessage.config();
 	Messenger.setting=new MSGSetting();
-	Messenger.sendBox=[];
 };
 Messenger.buildForm=function(o,view,par)
 {
@@ -379,18 +350,11 @@ Messenger.buildForm=function(o,view,par)
 	Messenger.buildEmojies();
 	Libre.onResize(); //also set fixed size to MessageArea
 	Messenger.seenIndex=0;
-	//load draft
-	var draft=null;
-	if((draft=localStorage.getItem('draftOf'+o.targetUID))){
-		_("#inputTxb").value(Messenger.unpurizeText(draft));
-		localStorage.removeItem('draftOf'+o.targetUID);
-	}
 	return ctrl;
 	
 };
 Messenger.receiveBack=function(res)
 {
-	Messenger.setConnected(true);
 	var app=null; var lastSeen=0;
 	if(Messenger.activeAppId){
 		app=Messenger.appList[Messenger.activeAppId];
@@ -519,7 +483,7 @@ Messenger.receive=function()
 		}else Messenger.lastMoment=1; //stop loading from local storage
 	}
 	LU.globalCallback=Messenger.receiveBack;
-	CMessage.receive(null,Messenger.lastMoment,"",Messenger.clearOnRead,Messenger.errorReceive);
+	CMessage.receive(null,Messenger.lastMoment,"",Messenger.clearOnRead);
 };
 Messenger.buildEmojies=function()
 {
@@ -564,30 +528,25 @@ Messenger.setEmoji=function(emcode)
 };
 Messenger.purizeText=function(txt)
 {
-	var pat=/<img\s+data=\"([^\"]+)\"\s+src=\"([^\"]+)\"\s+type=\"([^\"]+)\"\/*>/g;
+	var pat=/<img\s+data=\"([^\"]+)\"\s+src=\"([^\"]+)\"\s+type=\"([^\"]+)\"\/>/g;
 	var r=null;
 	while((r=pat.exec(txt))){
 		var rp="&em"+r[1]+";";
 		txt=txt.replace(r[0],rp);
 	}
-	txt=txt.replace(/<br\/*>/g,"\n");
-	txt=txt.replace(/<p>(\&nbsp;)*<\/p>/g,"\n");
-	txt=txt.replace(/<div>(<p>(\&nbsp;)*<\/p>)*<\/div>/g,"\n");
-	return txt.trim();
+	return txt;
 };
 Messenger.unpurizeText=function(txt)
 {
 	var pat=/\&em(\d+);/g;
 	//var pat=/<img\s+data=\"([^\"]+)\"\s+src=\"([^\"]+)\"\s+type=\"([^\"]+)\"\/>/g;
-	var r=null; var emcode=0;
+	var r=null;
 	while((r=pat.exec(txt))){
-		emcode=parseInt(r[1]);
-		var src=Emojies[emcode];
+		var src=Emojies[parseInt(r[1])];
 		if(!src)src="res/image/png/emojies/"+emcode.toString(16).toUpperCase()+".png";
 		var rp="<img src=\""+src+"\" type=\"emoji\" data=\""+emcode+"\"/>";
 		txt=txt.replace(r[0],rp);
 	}
-	txt=txt.replace(/\n/g,"<br/>");
 	return txt;
 };
 Messenger.selectEnd=function(node)
@@ -774,67 +733,6 @@ Messenger.scrollTo=function(msg)
 	if(Messenger.activeObject){
 		var ma=Messenger.activeObject.dialog.querySelector('.messageArea');
 		ma.scrollTop=dialog.offsetTop-10;
-	}
-};
-Messenger.errorSend=function(msg)
-{
-	//msg.id=-1*(Messenger.sendBox.length);
-	//Messenger.sendBox[Messenger.sendBox.length]=msg;
-	Messenger.sendBox.push(msg);
-	Messenger.setConnected(false);
-	if(!Messenger.resending){
-		setTimeout(Messenger.resend,Messenger.receiveDelay*6);//try to resend every 6 times of receiveDelay
-		Messenger.resending=true; //a resend is qued
-	}
-};
-Messenger.resend=function()
-{
-	if(Messenger.sendBox.length>0 && Messenger.connected){
-		var msg=null; var bvalue="";
-		var sending=Messenger.sendBox;
-		Messenger.sendBox=[];//new empty list
-		while(sending.length>0){
-			msg=sending.pop();
-			bvalue=msg.value;
-			msg.value=CryptoJS.AES.encrypt(msg.value,Messenger.activeObject.secureKey).toString();
-			Messenger.activeObject.send(msg);
-			msg.value=bvalue;
-		}
-	}
-	setTimeout(Messenger.resend,Messenger.receiveDelay*6);//try to resend every 6 times of receiveDelay
-	Messenger.resending=true; //a resend is qued
-};
-Messenger.errorReceive=function(res)
-{
-	Messenger.setConnected(false);
-	if(Messenger.activeObject.working)Messenger.activeObject.timeoutKeeper=setTimeout(Messenger.receive,Messenger.receiveDelay);
-};
-Messenger.onSendBack=function(msg,id)
-{
-	Messenger.setConnected(true);
-	//find and sending UI
-	var sendings=document.querySelectorAll(".sending");
-	for(var i=0;i<sendings.length;i++){
-		if(sendings[i].lObj==msg){
-			CMessage.activeDialog=sendings[i];
-			break;
-		}
-	}
-	msg.id=parseInt(id);
-	var showing=Messenger.isShowing(msg);
-	if(!showing)Messenger.messages.push(msg);//check it is not on the list
-	if(msg.value!="X" && (!showing || CMessage.activeDialog))CMessage.show(Messenger.activeObject,msg,true);
-	Messenger.getStatus(); //get status of sending message
-};
-Messenger.setConnected=function(state)
-{
-	if(state!=Messenger.connected){
-		Messenger.connected=state;
-		if(Messenger.connected){
-			(new JetHtml(document.body)).removeClass('offline');
-		}else{
-			(new JetHtml(document.body)).addClass('offline');
-		}
 	}
 };
 
@@ -1144,7 +1042,6 @@ Conversation.storeMessages=function(messages)
 Conversation.get=function(arg,last)
 {
 	if(arg){
-		Messenger.setConnected(true);
 		var ls=JSON.parse(arg);
 		for(var i=0;i<ls.length;i++){
 			Conversation.load(ls[i].uid,ls[i]);
@@ -1152,7 +1049,6 @@ Conversation.get=function(arg,last)
 		setTimeout(Conversation.get,Messenger.receiveDelay*3);
 	}else{
 		var n=new NetData();
-		n.onerror=Conversation.getError;
 		n.url="client/Conversation/get/"; n.callback=Conversation.get; n.add('time',Messenger.lastMoment?Messenger.lastMoment:parseInt(localStorage.lastMoment)).commit();
 	}
 };
@@ -1261,11 +1157,6 @@ Conversation.searchMessage=function(param,uid,dl,count,option,callback)
 	req.out_result=[];
 	req.callback=callback;
 	req.option=option;
-};
-Conversation.getError=function(res)
-{
-	Messenger.setConnected(false);
-	setTimeout(Conversation.get,Messenger.receiveDelay*3);
 };
 
 function ConvSetting(uid,skey)

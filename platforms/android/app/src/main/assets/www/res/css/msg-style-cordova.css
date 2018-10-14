@@ -32,6 +32,19 @@ user-select: none;
 	margin-top: -0.625em;
 	margin-right: -0.625em;
 }
+.myMessage.sending{padding-left:1.2em;}
+.myMessage.sending:before{
+	display: block;
+    content: '⌚';
+    background-color: red;
+    color: white;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    margin: -1px;
+	padding-top:1em;
+}
 .itMessage:after {
 	content: '';
 	position: absolute;
@@ -44,6 +57,19 @@ user-select: none;
 	border-left: 0;
 	margin-top: -0.625em;
 	margin-left: -0.625em;
+}
+.itMessage.sending{padding-right:1.2em;}
+.itMessage.sending:before{
+	display: block;
+    content: '⌚';
+    background-color: red;
+    color: white;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    margin: -1px;
+	padding-top:1em;
 }
 
 .myMessage img[type="emoji"],
@@ -209,3 +235,5 @@ user-select: none;
     width: 100%;
     font-family: sans-serif;
 }
+
+.offline .menuList,.offline #mainMenuPan{background-color:#BF3F3F !important;color:white !important;}

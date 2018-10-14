@@ -17,7 +17,7 @@ Gesture.config=function(el){
 	Gesture.height=document.body.offsetHeight;
 };
 Gesture.start=function(e){
-	//e.preventDefault();
+	//e.preventDefault(); //if this line runs other touch functionality will disable
 	Gesture.listo=[];
 	var touches=e.changedTouches;
 	for(var i=0;i<touches.length;i++){

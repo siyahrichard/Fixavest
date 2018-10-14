@@ -125,7 +125,8 @@ HomeCore.fillCountryBoxes=function(codeCmb,nameCmb)
 	
 	for(i=0;i<codes.length;i++){
 		var copt=document.createElement('option');
-		copt.value=copt.innerHTML="+"+codes[i];
+		copt.innerHTML="+"+codes[i];
+		copt.value=codes[i];
 		
 		if(codes[i]==HomeCore.defaultCountryCode){
 			copt.setAttribute('selected','selected');

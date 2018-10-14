@@ -91,6 +91,8 @@ function __init__(){
   window.addEventListener('orientationchange',Libre.onOrientation,false);
   Libre.onOrientation(null);
   if(typeof(CAuth)!="undefined")CAuth.isLogin(); //check the user has loged in or not then trigger login event to continue the app
+
+  window.addEventListener('unload',onExit,false);
 }
 Libre.images={
   'normalPin':'res/images/svg/white-pin.svg',

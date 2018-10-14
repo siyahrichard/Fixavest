@@ -16,11 +16,11 @@
 	<div id="viewBackground" style="background-color: #D2E1FD">
 		<img class="fullLogo" id="mainLogo" src="res/image/png/logo.png" onclick="onWantNothing()" />
 	</div>
-	<div id="actionBar">
-
-        <button class="green btn" onclick="onWantLogin()">Login</button>
-		&nbsp;|&nbsp;
-        <button class="orange btn" onclick="onWantRegister()">Register</button>
+	<div id="actionBar" class="normal">
+		<span class="msg">You can also: </span>
+        <button class="green btn" id="loginBtn" onclick="onWantLogin()">Login</button>
+		<span class="sep">&nbsp;|&nbsp;</span>
+        <button class="orange btn" id="registerBtn" onclick="onWantRegister()">Register</button>
     </div>
 	<div id="login-dialog" class="formbox userForm hide">
 	        <div id="userLoginField">
@@ -81,7 +81,7 @@
 		logo.setAttribute("class","miniLogo");
 		_("#login-dialog").removeClass('hide');
 		_("#register-dialog").addClass('hide');
-		_("#actionBar").attr("style","bottom:5vh");
+		_("#actionBar").attr("class","login mini");
 		HomeCore.currentFragment='login';
 	}
 	function onWantRegister(){
@@ -89,7 +89,7 @@
 		logo.setAttribute("class","miniLogo");
 		_("#register-dialog").removeClass('hide');
 		_("#login-dialog").addClass('hide');
-		_("#actionBar").attr("style","bottom:5vh");
+		_("#actionBar").attr("class","register mini");
 		HomeCore.currentFragment='register';
 		HomeCore.loadCountryCodes();
 	}
@@ -98,7 +98,7 @@
 		logo.setAttribute("class","fullLogo");
 		_("#register-dialog").addClass('hide');
 		_("#login-dialog").addClass('hide');
-		_("#actionBar").attr("style","");
+		_("#actionBar").attr("class","normal");
 	}
 
 	if(typeof(CAuth)!="undefined"){

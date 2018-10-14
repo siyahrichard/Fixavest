@@ -2,15 +2,21 @@
 #phoneTxbL,#phoneTxb{width: 65%;}
 #countryCodeL,#countryCode{width: 30%;}
 #countryName,#countryNameL{width: 100%;}
-.gold{background-color: darkgoldenrod; border:2px solid gold; color:white; }
+.gold{background-color: darkgoldenrod; border:1px solid gold; color:white; }
 
 
 
 *{padding:0px;margin:0px;}
 #actionBar{
-	text-align: center; padding:15px 80px; background-color: white;
-	position: absolute;bottom: 10vh; right: 0px; left:0px;
+	text-align: center; background-color: white;
+	position: absolute; left:0px;transition: bottom 0.1s,padding 0.1s; will-change:bottom,padding;
 }
+#actionBar.normal{bottom: 10vh; right: 0px;padding:15px 80px;}
+#actionBar.mini{bottom: 0px;right: unset;padding:20px;border-top-right-radius: 1em}
+#actionBar.login #loginBtn{display: none}
+#actionBar.register #registerBtn{display: none}
+#actionBar.normal .msg{display: none}
+#actionBar.mini .sep{display: none}
 #viewPan{
 	background-color:rgba(256, 256, 256, 0.6); text-align: center; position:fixed; top:60px; bottom:0px; left:0px; right:0px;
 	background-color:rgba(22, 22, 22, 0.7);
@@ -19,7 +25,7 @@
 	position:fixed; top:0px; bottom:0px; left:0px; right:0px; background-repeat: no-repeat;background-position: center; background-size: cover;
 	text-align: center; z-index: -1;
 }
-#viewBackground img{transition: all 0.5s;}
+#viewBackground img{transition: all 0.1s;will-change:margin-top,height;}
 #viewBackground .fullLogo{margin-top:10vh;height: 40vh}
 #viewBackground .miniLogo{margin-top: 3vh;height: 10vh}
 .userForm{

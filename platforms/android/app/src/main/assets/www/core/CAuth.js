@@ -17,10 +17,14 @@ CAuth.loginPath='login.html';
 CAuth.activeObject=null;
 CAuth.server=null;
 CAuth.forceLogin=true;
+CAuth.tries=2;
 
 
 CAuth.isLogin=function()
 {
+	if(CAuth.tries<1)return null; //skip the loop of login
+	CAuth.tries--;
+	
 	if(localStorage.user_sess){
 		if((Date.now()-3600000)<parseInt(localStorage.user_sess_time)){
 			var tmp= new CAuth();
@@ -74,6 +78,11 @@ CAuth.onSessionBack=function(res)
 		var tmp= new CAuth();
 		(new JetHtml(document.body)).trigger("login");
 		return tmp;
+	}else{
+		//the session is expired on the server it must to renew it
+		localStorage.removeItem('user_sess');
+		localStorage.removeItem('user_sess_time');
+		CAuth.isLogin();
 	}
 };
 CAuth.logout=function(callback)

@@ -70,3 +70,9 @@ function onGesture(gs){
 		}
 	}
 }
+
+function onExit(e){
+	if(Messenger.activeObject){
+		Messenger.activeObject.exit();
+	}
+}
