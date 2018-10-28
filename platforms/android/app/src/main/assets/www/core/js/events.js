@@ -1,12 +1,11 @@
 function onLogedIn(watchdog){
-	if(!LU.login){
+	if(!LU.login && !Messenger.workOffline){
 		Libre.log('login...');
-		_("#splash").addClass('hide');//hide splash screen after login
-		Messenger.onHome();//show home dialog
+		_("#splash").addClass('hide')
+		Messenger.onHome();
 		if(typeof(CAuth)!="undefined"){
 		  Messenger.currentUID=CAuth.activeObject.uid;
 		}
-		//configMessenger();//in this file
 		FollowContact.uid=Messenger.currentUID;
 		UserInfo.getDB(); //connect to database
 		LU.peopleRoot=UniversalServer.getServer(3,
@@ -20,6 +19,22 @@ function onLogedIn(watchdog){
 		  }
 		}
 		LU.login=true;
+	}
+}
+function onWorkOffline(){
+	Messenger.workOffline=true;
+	Messenger.connected=true; //originally it is false and next require to change value to show offline mode
+	Messenger.setConnected(false);//show the messenger is offline
+	Libre.log('Working offline.');
+	_("#splash").addClass('hide');
+	Messenger.onHome();
+	Messenger.currentUID=localStorage.getItem('user_uid');
+	if(Messenger.currentUID){
+		FollowContact.uid=Messenger.currentUID;
+		UserInfo.getDB(); //connect to database
+		LU.peopleRoot=UniversalServer.getServer(3,
+		FollowContact.parseUid(FollowContact.uid,true)).url;
+		FollowContact.read();
 	}
 }
 function configMessenger(watchdog){//for test call on onLogedIn()
@@ -75,4 +90,16 @@ function onExit(e){
 	if(Messenger.activeObject){
 		Messenger.activeObject.exit();
 	}
+}
+
+function onErrorMyProfileImage(e){
+	var uinfo=UserInfo.get(Messenger.currentUID);
+	var avatar=document.createElement('div');
+	avatar.setAttribute("class","avatar");
+	var title=uinfo.title;
+
+	e.target.parentElement.insertBefore(avatar,e.target);
+	e.target.parentElement.removeChild(e.target);
+
+	TextAvatar.getTextAvatar(title,avatar,null,null,2);
 }

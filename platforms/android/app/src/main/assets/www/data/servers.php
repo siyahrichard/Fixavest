@@ -17,7 +17,10 @@
 
 		new UniversalServer("aa",5,"http://localhost/market/"), //market and network
 		new UniversalServer("jtaht",5,"http://localhost/market/"), //market and network
-		new UniversalServer("aa",5,"http://localhost/market/") //market and network
+		new UniversalServer("aa",5,"http://localhost/market/"), //market and network
+
+		new UniversalServer("a",7,"http://vest-a.abrapp3.ml/"), //messenger
+		new UniversalServer("jtaht",7,"http://vest.abrapp3.ml/") //messenger
 );
 	
 ?>

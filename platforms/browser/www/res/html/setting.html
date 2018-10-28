@@ -1,0 +1,44 @@
+<html><head>
+		<link type="text/css" rel="stylesheet" href="../libre-all-cordova.css"/>
+		<link rel="stylesheet" type="text/css" href="../jetframe.css"/>
+		<link rel="stylesheet" type="text/css" href="../popup.css"/>
+		<link rel="stylesheet" type="text/css" href="../css/msg-style-cordova.css"/>
+</head><body>
+	<div style="padding:5px;background-color: midnightblue">
+		<img style="width: 50px;height: 50px;vertical-align: middle;margin-right: 10px" src="../../res/image/png/setting.png"/>
+		<button id="deviceSettingBtn" class="orange btn b5" onclick="FLSetting.setType('device');">Device</button>
+		<button id="contactSettingBtn" class="blue btn b5" onclick="FLSetting.setType('contact');">Contacts</button>
+		<button id="messageSettingBtn" class="blue btn b5" onclick="FLSetting.setType('message');">Messages</button>
+		<button id="userSettingBtn" class="blue btn b5" onclick="FLSetting.setType('user');">User</button>	
+	</div>
+	<div id="resultArea" style="margin:5px;border:1px solid gray;border-radius: 5px;padding:5px;box-shadow: 2px 2px 20px gray;background:linear-gradient(to right,white,#F8E5FF);">
+		<div id="deviceSettingPan">
+			<table>
+				<tr>
+					<td>Platform:</td>
+					<td>%platform%</td>
+				</tr>
+				<tr>
+					<td>Manufacturer:</td>
+					<td>%manufacturer%</td>
+				</tr>
+				<tr>
+					<td>Model:</td>
+					<td>%device_model%</td>
+				</tr>
+			</table>
+		</div>
+		<div id="contactSettingPan" class="hide">
+			<button class="green btn b5" onclick="ContactCheck.refresh()">Refresh Contacts</button>
+		</div>
+		<div id="messageSettingPan" class="hide"></div>
+		<div id="userSettingPan" class="hide">
+			<table>
+				<tr>
+					<td>UID:</td>
+					<td>%uid%</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</body></html>

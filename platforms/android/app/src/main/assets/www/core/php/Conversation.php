@@ -13,10 +13,13 @@ class Conversation
 	public static $allUIDs=null;
 	public static $contactIndex=0;
 	public static $activeParam=null;
+	public static $startCallback=null;
 	public static $db=null;
 	public static $convOS=null;
 	public static $msgOS=null;
 	public static $audIconPopup=null;
+	public static $server='';
+	public static $serverSession='';
 	
 	public function __construct( $uid, $title, $picture)
 	{

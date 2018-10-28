@@ -28,7 +28,7 @@ class ConvStat
 		$q="create table if not exists conv_$table(id_fl int primary key auto_increment,uid1_fl varchar(20),uid2_fl varchar(20))";
 		$defdb->run($q);
 	}
-	public static function status( $uid, $conversation)
+	public static function status( $uid, $conversation, $callback)
 	{
 		global $defdb;
 		$table=ConvStat::$table;

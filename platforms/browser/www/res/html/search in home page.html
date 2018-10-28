@@ -1,0 +1,72 @@
+<html>
+	<style>
+		.searchType{
+			border:1px solid snow; padding: 20px; margin: 5px; border-radius: 5px;
+		}
+		.searchItem{
+			border:1px solid silver; padding: 3px; margin: 5px; box-shadow: 1px 1px 5px gray; border-radius: 5px;
+		}
+		.searchItem .side1{display: inline-block;vertical-align: middle;width: 20%;}
+		.searchItem .side1 img{height: 50px;width: 100%;object-fit: scale-down; border-radius:5px;background-color: black;vertical-align: middle; }
+		.searchItem .side2{display: inline-block;vertical-align: middle;width: calc(80% - 18px);margin-left: 10px}
+		.searchItem.mode1{padding:10px !important;}
+	</style>
+	<body>
+		<div class="searchType">
+			<p><b class="title">%title%</b></p>
+			<p id="result%code%">
+			</p>
+			<p class="foot"><button class="green btn" onclick="SearchType.more('%code%')">More...</button></p>
+		</div>
+
+		//search items
+		//1- title and description and picture
+		<div class="searchItem" onclick="SearchItem.onClick(event)">
+			<div class="side1">
+				<img onerror="SearchItem.onImageError(event);" src="%image%"/>
+			</div>
+			<div class="side2">
+				<p><b>%title%</b></p>
+				
+				<p>
+					%description%
+				</p>
+			</div>
+		</div>
+
+		//2- title and description
+		<div class="searchItem mode1" onclick="SearchItem.onClick(event)">
+			<p><b>%title%</b></p>
+			
+			<p>
+				%description%
+			</p>
+		</div>
+
+		//3- title  and picture
+		<div class="searchItem" onclick="SearchItem.onClick(event)">
+			<div class="side1">
+				<img onerror="SearchItem.onImageError(event);" src="%image%"/>
+			</div>
+			<div class="side2">
+				<span>%title%</span>
+			</div>
+		</div>
+
+		//4- description  and picture
+		<div class="searchItem" onclick="SearchItem.onClick(event)">
+			<div class="side1">
+				<img onerror="SearchItem.onImageError(event);" src="%image%"/>
+			</div>
+			<div class="side2">
+				<span>%description%</span>
+			</div>
+		</div>
+
+		//5- picture
+		<div class="searchItem mode2" onclick="SearchItem.onClick(event)">
+			<img onerror="SearchItem.onImageError(event);" src="%image%"/>
+		</div>
+	</body>
+
+</html>

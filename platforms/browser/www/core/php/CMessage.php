@@ -6,6 +6,8 @@ class CMessage extends FSMessage
 	var $sid=null;
 	var $modified=null;
 	var $replay=null;
+	var $ms=null;
+	var $attachments=null;
 	
 	public static $table='messages';
 	public static $activeObject=null;
@@ -29,8 +31,14 @@ class CMessage extends FSMessage
 		
 		$q="create table if not exists e$table (id_fl int primary key, mod_fl datetime, rep_fl int)";
 		$defdb->run($q);
+		
+		$q="create table if not exists files_$table (id_fl int, code_fl varchar(30), share_key varchar(20),constraint if$table unique(id_fl,code_fl,share_key))";
+		$defdb->run($q);
+		
+		$q="create table if not exists trash_files_$table (id_fl int, code_fl varchar(30), share_key varchar(20),constraint itf$table unique(id_fl,code_fl,share_key))";
+		$defdb->run($q);
 	}
-	public static function send( $o, $server, $targetServer=null)
+	public static function send( $o, $server, $targetServer=null, $sendBack=null, $errorBack=null)
 	{
 		$ch=curl_init($server."client/CMessage/income/");
 		curl_setopt_array($ch,array(
@@ -52,16 +60,18 @@ class CMessage extends FSMessage
 			$defdb->run($q);
 			$q="insert into e$table (id_fl,mod_fl)value($o->id,'$o->modified') on duplicate key update mod_fl='$o->modified'";
 			$defdb->run($q);
+			CMessage::saveFiles($o);
 		}
 		else
 		{
 			$q="insert into $table (sub_fl ,val_fl,from_fl, to_fl ,sa_fl ,ra_fl ,mom_fl , stat_fl,sid_fl )values( '$o->subject', '$o->value', '$o->sender', '$o->receiver', $o->senderApp, $o->receiverApp, '$o->moment',$o->status,$o->sid)";
 			$defdb->run($q);
 			$o->id=$defdb->auto_increment;
+			CMessage::saveFiles($o,true);//for more performace tell the function to execution of cleaning old files block is not require
 		}
 		
 	}
-	public static function receive( $uid, $moment, $server=null,$clear=false)
+	public static function receive( $uid, $moment, $server=null,$clear=false, $errorCallback=null)
 	{
 		global $defdb;
 		$table=CMessage::$table;
@@ -85,6 +95,75 @@ class CMessage extends FSMessage
 			//$q="delete from $table $cond2";
 			//$defdb->run($q);
 		}
+		return $ret;
+	}
+	public static function getTrash()
+	{
+		global $defdb;
+		$cmoptTable=CMOption::$table;
+		$count_to_delete=2;
+		$lim="limit 100";
+		$q="select id_fl from (select id_fl,count(uid_fl) as cnt_fl from $cmoptTable where opt_fl&1=1 group by id_fl) as t1 where cnt_fl=$count_to_delete $lim";
+		$defdb->run($q);
+		$ids=array();
+		while($r=$defdb->fetch()){
+			array_push($ids,$r['id_fl']);
+		}
+		return $ids;
+	}
+	public static function saveFiles( $o,$is_new=false)
+	{
+		global $defdb;
+		$table=CMessage::$table;
+		if(is_array($o->attachments)){
+			$codes=array();
+			$q="insert into files_$table (id_fl,code_fl,share_key)values";
+			foreach($o->attachments as $key=>$value){
+				if($key>0)$q.=",";
+				array_push($codes,$value->code);
+				$q.="($o->id,'$value->code','$value->shareKey')";
+			}
+			$defdb->run($q);
+			if(!$is_new){
+				$codes=implode("','",$codes);
+				$q="insert into trash_files_$table select * from files_$table where code_fl not in('".$codes."')";
+				$defdb->run($q);
+				//delete from table
+				$q="delete from files_$table where code_fl not in('".$codes."')";
+				$defdb->run($q);
+			}
+		}
+	}
+	public static function getTrashFiles()
+	{
+		global $defdb;
+		$table=CMessage::$table;
+		$lim="limit 20";
+		$q="select trash_file_$table.*,file_$table.code_fl as exist_code from trash_file_$table left join file_$table on trash_file_$table.code_fl=file_$table.code_fl $lim";
+		$defdb->run($q);
+		//if exist_code == Null the file is ready to delete
+		$codes=array();
+		while($r=$defdb->fetch())if(!$r['exist_code'])array_push($codes,$r['code_fl']); //select codes if there is not in the file_$table
+		
+		return $codes;
+	}
+	public static function getConversations( $uid)
+	{
+		global $defdb;
+		$table=CMessage::$table;
+		$otable=CMOption::$table;
+		$q="select * from (".
+		"select $table.to_fl as conv_fl,$otable.opt_fl as opt_fl from $table left join $otable on $table.id_fl=$otable.id_fl and $otable.uid_fl='$uid' ".
+		"where $table.from_fl='$uid' and ((opt_fl & 1)=0 or (opt_fl & 1) is null) group by to_fl".
+		" UNION ".
+		"select $table.from_fl as conv_fl,$otable.opt_fl as opt_fl from $table left join $otable on $table.id_fl=$otable.id_fl and $otable.uid_fl='$uid' ".
+		"where $table.to_fl='$uid' and ((opt_fl & 1)=0 or (opt_fl & 1) is null) group by from_fl".
+		") as t1 group by conv_fl";
+		
+		
+		$defdb->run($q);
+		$ret=array();
+		while($r=$defdb->fetch())array_push($ret,$r['conv_fl']);
 		return $ret;
 	}
 }
@@ -117,6 +196,27 @@ class CMOption
 			$q.="($id,'$uid',$option)";
 		}
 		$q="insert into $table (id_fl,uid_fl,opt_fl)values$q on duplicate key update opt_fl= opt_fl | $option";
+		$defdb->run($q);
+	}
+	public static function deleteAll( $uid, $audience, $callback=null)
+	{
+		global $defdb;
+		$cmtable=CMessage::$table;
+		$table=CMOption::$table;
+		
+		$q="select id_fl from $cmtable where (from_fl='$uid' and to_fl='$audience') or (from_fl='$audience' and to_fl='$uid')";
+		$defdb->run($q);
+		$ids=array();
+		while($r=$defdb->fetch()){
+			array_push($ids,$r['id_fl']);
+		}
+		
+		$q="insert into $table (id_fl ,uid_fl ,opt_fl)values";
+		foreach($ids as $key=>$value){
+			if($key>0)$q.=",";
+			$q.="($value, '$uid', 1)";
+		}
+		$q.="on duplicate key update opt_fl=opt_fl|1";
 		$defdb->run($q);
 	}
 }

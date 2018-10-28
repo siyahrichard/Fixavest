@@ -11,6 +11,10 @@ HomeCore.phoneMode=false;
 HomeCore.currentFragment=null;
 
 
+HomeCore.onChangeLanguage=function()
+{
+	
+};
 HomeCore.setInputError=function(id,errorText)
 {
 	var x=_("#"+id);

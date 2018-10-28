@@ -2,14 +2,14 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="http://cdn.netor.ir/jetframe/css/jetframe.css"/>
-		<link rel="stylesheet" type="text/css" href="../../res/css/msg-style.css"/>
+		<link rel="stylesheet" type="text/css" href="../../res/css/msg-style-cordova.css"/>
 		<style>
 			*{margin: 0px}
 			html,body{height: 100%}
 		</style>
 	</head>
-	<body>
-		<table style="height: 100%;width: 100%"><tr><td style="word-break:break-all;vertical-align: top;">
+	<body class="landscape">
+		<table class="workingTable" ><tr><td style="word-break:break-all;vertical-align: top;">
 		<div class="messengerPan infobox">
 			<div class="messageArea" id="messageArea%index%">
 				<div class="itMessage">it message<div class="info">3:45 am</div></div><hr/>
@@ -24,16 +24,18 @@
 						<li><img src="../../res/image/png/call.png"/></li>
 						<li onclick="Messenger.buildEmojies();"><img src="../../res/image/png/emojies/1F600.png"/></li>
 						<li onclick="Messenger.buildApps();"><img src="../../res/image/png/app.png"/></li>
+						<li onclick="Messenger.onAttachClick();"><img src="../../res/image/png/attach.png"/></li>
+						<li onclick="Messenger.buildFormats();" class="bold">B</li>
 					</ul>
 					<div id="attachBoard"></div>
 				</div>
-				<div class="h-setbox">
+				<div class="h-setbox" class="inputPan">
 					<img src="../../res/image/svg/add-white.svg" class="blue btn" onclick="_('#attachArea').toggleClass('hide');" />
 					<div contenteditable="true" class="editor" id="inputTxb%index%" onkeyup="Messenger.list[%index%].checkInput(event)"></div>
 					<img src="../../res/image/svg/right-arrow-white.svg" class="blue btn" onclick="Messenger.list[%index%].onSend(event)"/>
 				</div>
 			</div>
 		</div>
-		</td><td class="messengerAppArea"></td></tr></table>
+		</td><td class="messengerAppArea"><div id="msgAppParent"></div></td></tr></table>
 	</body>
 </html>

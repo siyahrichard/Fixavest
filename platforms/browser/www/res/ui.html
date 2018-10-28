@@ -19,9 +19,12 @@
 		<tr>
 			<td>Storage</td>
 			<td>
-				<button class="blue btn" onclick="Conversation.clearMessages('%uid%');"> Delete messages </button>
-&nbsp; &nbsp;
-				<button class="red btn" onclick="Conversation.clearMessages('%uid%');Conversation.remove('%uid%');"> Delete the conversation </button>
+				<p>
+					<button class="blue btn" onclick="Conversation.delete('%uid%',false);"> Delete messages and keep the audience on the list </button>
+				</p>
+				<p>
+					<button class="red btn" onclick="Conversation.delete('%uid%',true);Conversation.remove('%uid%');"> Delete the conversation and all messages </button>
+				</p>
 			</td>
 		</tr>
 	</table>

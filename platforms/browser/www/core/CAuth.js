@@ -49,6 +49,7 @@ CAuth.getSession=function()
 	var n=new NetData();
 	n.url="client/UniversalConnection/autoRemote/";
 	n.callback=CAuth.onSessionBack;
+	n.onerror=CAuth.onErrorLogin;
 	n.add('appkey',CAuth.appkey,true).add('cert',localStorage.user_cert,true).add('uid','1').add('hub',localStorage.user_hub).commit();
 };
 CAuth.beforeSend=function(nt)
@@ -89,4 +90,8 @@ CAuth.logout=function(callback)
 {
 	localStorage.clear();
 	if(callback)callback();
+};
+CAuth.onErrorLogin=function(e)
+{
+	(new JetHtml(document.body)).trigger('loginerror');
 };

@@ -10,7 +10,12 @@ user-select: none;
 .sendArea ul{margin:0px; padding:0px;list-style: none}
 .sendArea li{display: inline-block;margin:5pt;}
 .sendArea>*{vertical-align: middle;}
+.sendArea .file{display: block;padding:.2em .2em .2em 0em;border:1px solid #3F7FBF;background-color:#D0E5FA;border-radius: 0px !important;}
+.sendArea .file:before{content:'';display:inline-block;width:1em;height:1em;background-image: url('../image/png/attach.png');background-size:1em;margin-right: .2em;margin-left:.2em;vertical-align: middle;}
 #attachArea{text-align: left;}
+#attachArea .uploadPan{position:relative;display: block;background-color: #BAD5FC;border:0.2em dashed #004EBC;background-position: center;text-align: center;font-weight: bold;color:black;padding:0.5em; }
+#attachArea .uploadPan img{height: 4em}
+#attachArea .uploadPan input[type="file"]{opacity: 0;position:absolute;top:0px;left:0px;right: 0px;bottom: 0px;cursor: pointer;width: 100%}
 #msgAud{vertical-align: middle;}
 .messengerPan{background-color: #FBF3E8;height: 100%;position: relative;}
 .messageArea{background-image: url('../image/svg/petite.svg');background-repeat: no-repeat;background-size: contain;background-color: #FBF3E8;overflow-y: scroll;overflow-x:hidden;height: 80%;}
@@ -93,6 +98,7 @@ user-select: none;
 .ContactSetting{background-color: darkslategray;margin-bottom: 10px}
 .ContactSetting img{width: 150px;height: 150px;margin:30px 30px 30px 80px; border-radius: 10px;border:10px solid white;}
 .messengerAppArea.hide{display: none}
+#attachBoard{margin:1em;}
 
 :root{
 	--size5:5px;
@@ -121,13 +127,16 @@ user-select: none;
     	background-color: white;
     	display: inline-block;
     	padding: calc(5pt - 2px);
-    	border: 1px solid gray;
     	min-height: 25px;
     	font-size: 25px;
-    	text-align: left
+    	text-align: left;
+    	outline:none;
+    	white-space: pre-wrap;
+    	word-break: break-word;
     }
 	.portrait .sendArea img.blue{width:7%; height: 25px;vertical-align:middle;}
-	.portrait #attachArea>ul>li>img{width: 30px; height: 30px;border: 2px solid royalblue;padding: 5px;background-color: dodgerblue;}
+	.portrait #attachArea>ul>li>img,.portrait #attachArea>ul>.btn
+	{width: 30px; height: 30px;border: 2px solid royalblue;padding: 5px;background-color: dodgerblue;vertical-align: top;font-size: 1.5em;text-align: center;color:white}
 	.portrait #attachBoard img{width: 30px;height: 30px;object-fit: scale-down;}
 	.portrait .messengerAppArea{width: 100vh;border-left: 1px solid silver;text-align: center;vertical-align: top}
 	.portrait .flagIcon:before{background-position-x: -74px !important;}
@@ -148,9 +157,10 @@ user-select: none;
 		    width: 22px;
 		    overflow: hidden;
 	}
-	.landscape .sendArea .editor{width: calc(100% - 90px);vertical-align:middle;background-color:white;display: inline-block;padding:4px;border:1px solid gray;min-height: 1em;text-align: left}
-	.landscape .sendArea img.blue{width: 15px; height: 15px;vertical-align:middle;}
-	.landscape #attachArea>ul>li>img{width: 30px; height: 30px;border: 2px solid royalblue;padding: 5px;background-color: dodgerblue;}
+	.landscape .sendArea .editor{width: calc(100% - 100px);word-break: break-word;background-color:white;display: inline-block;padding:4px;min-height: 1em;text-align: left;white-space: pre-wrap;outline: none}
+	.landscape .sendArea img.blue{width: 15px; height: 15px;vertical-align:top;}
+	.landscape #attachArea>ul>li>img,.landscape #attachArea>ul>.btn
+	{width: 30px; height: 30px;border: 2px solid royalblue;padding: 5px;background-color: dodgerblue;vertical-align: top;font-size: 1.5em;text-align: center;color:white;}
 	.landscape #attachBoard img{width: 25px;height: 25px;object-fit: scale-down;}
 	.landscape .messengerAppArea{width: 70%;border-left: 1px solid silver;text-align: center;vertical-align: top}
 	.landscape .flagIcon:before{background-position-x: -74px !important;}
@@ -165,7 +175,7 @@ user-select: none;
 #profilePan {margin-bottom: 15px;margin-top: 15px}
 #profilePan img{height: 2em;width: 2em;object-fit: cover;vertical-align: middle;border-radius: 5px; border:2px solid white;}
 #profilePan span{margin-left: 5px;text-overflow: ellipsis;display: inline-block;height: 1em;width: calc(100% - 55px);overflow: hidden;word-break: break-all;}
-
+#profilePan .avatar{display:inline-block; vertical-align:middle;height: 2em;width: 2em;border-radius: 5px; border:2px solid white;}
 .flagIcon:before,.editIcon:before,.deleteIcon:before,.copyIcon:before,.unsendIcon:before
 {background: url(../../res/image/png/menu-icons.png);background-repeat: no-repeat;background-size: 600%;}
 
@@ -235,5 +245,14 @@ user-select: none;
     width: 100%;
     font-family: sans-serif;
 }
-
+.messageArea .file{display: block;cursor: pointer;}
+.messageArea img.file{width: 30vw;height: 20vw;object-fit: cover}
 .offline .menuList,.offline #mainMenuPan{background-color:#BF3F3F !important;color:white !important;}
+.inputPan{border: 1px solid gray;border-radius: .4em;padding: .2em;text-align: left;overflow-x: hidden;white-space: nowrap;background-color: white}
+.sendArea img.blue:last-child{float:right;}
+.bold{font-weight: bold} .italic{font-style: italic;} .underline{text-decoration: underline;}
+#xViewer{position: fixed;z-index: 9999;background-color:black;top:0px;left:0px;bottom: 0px;right: 0px}
+#xViewerTitle{color:white;font-weight: bold;margin-left: 2em;display: inline-block;vertical-align: middle;}
+#xViewerTitleBar{background-color: #202020;border-bottom: 1px solid #303030;box-shadow: 0px 1px 5px #353535;padding: 0.2em;}
+#xViewerPan{text-align: center;height: calc(100vh - 5em);}
+#xViewerPan img,.fileViewerPan video{max-height: 100%;max-width: 100%;object-fit: scale-down;}

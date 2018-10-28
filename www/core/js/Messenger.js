@@ -397,7 +397,7 @@ Messenger.config=function()
 	//debug:UniversalServer.list[4]=new UniversalServer('1',1,"http://192.168.1.3/CloudFile/Mirror/");
 	
 	//set a file mirror
-	let fservers=UniversalServer.getServer(1);
+	var fservers=UniversalServer.getServer(1);
 	Messenger.currentFileMirror=fservers[parseInt(Math.random()*fservers.length)].url;
 	//Messenger.server=UniversalServer.getServer(7,/([a-z]+)\d+/i.exec(Messenger.currentUID)[1]).url; //set the messenger server
 };

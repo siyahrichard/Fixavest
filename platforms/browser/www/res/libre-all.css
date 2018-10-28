@@ -10,7 +10,7 @@ html,body{min-height: 100%;overflow-x: hidden;}
 	line-height:21px;
 	background-color:#3F7FBF;
 	color:white;
-
+	overflow: hidden;
 }
 #extraPan
 {
@@ -26,8 +26,8 @@ html,body{min-height: 100%;overflow-x: hidden;}
 	overflow-x: hidden;
 	background:linear-gradient(to bottom,#3F7FBF,#267FD8);
 }
+#sidebarBtn{transition: transform 0.2s}
 .workPanFwork{position:fixed;background-color:#f4fbfb;left:0px;right:0px;overflow-x: hidden;}
-.sidebarFwork *{display: none}
 .visibleFloatbar
 {
 	background-color: gray;
@@ -79,19 +79,19 @@ html,body{min-height: 100%;overflow-x: hidden;}
 
 /*mobile/portrait specifics*/
 .portrait #mainMenuPan{height:10vw;}
-.portrait .workPanNormal{font-size: 3.5em;top:10vw;left:0px;right:0px;bottom:0px;overflow-y: scroll;}
-.portrait .workPanFwork{font-size: 3.5em;top:10vw;bottom:0px;padding:5pt;overflow-y: scroll;}
-.portrait .sidebar{transition: bottom 0.5s,padding 0.5s;top:calc(10vw - 5px);left:0px;right:0px;font-size: 4em;}
-.portrait .sidebarNormal{bottom:0px;padding:0.5em;}
-.portrait .sidebarFwork{bottom: 95vh;padding:0em;}
-.portrait #pinBtn{display: none;position: absolute; top: -200pt}
+.portrait .workPanNormal{font-size: 3.5em;top:10vw;left:0px;right:0px;bottom:0px;overflow-y: auto;}
+.portrait .workPanFwork{font-size: 3.5em;top:10vw;bottom:0px;padding:5pt;overflow-y: auto;}
+.portrait .sidebar{transition: bottom 0.5s,padding 0.5s;top:calc(10vw - 5px);bottom:0px;width:80vw;font-size: 4em;}
+.portrait .sidebarNormal{left:0px;padding:0.5em;}
+.portrait .sidebarFwork{left: -80vw;padding:0em;}
+.portrait #pinPar{display: none;position: absolute; top: -200pt}
 .portrait #projectBtn{display: none;position: absolute; top: -200pt}
-.portrait #mainMenuPan #menuItemList>li{float:right;margin:5pt;font-size:15px;}
+.portrait #mainMenuPan #menuItemList>li{float:left;margin:5pt;font-size:15px;}
 .portrait #mainMenuPan #menuItemTools li{margin-right:5pt;margin-top:5pt;}
-.portrait #mainMenuPan li img{height: 8vw;}
+.portrait #mainMenuPan li img{height: 8vw;width: 8vw;object-fit: cover;}
 .portrait #searchPan{ border-radius: 1vw;margin-right:10px;}
 .portrait #searchPan input{margin:0.6vw 2vw;font-size:6vw;width: 30vw;transition: width 0.3s}
-.portrait #searchPan input:focus{width: 40vw;}
+.portrait #searchPan input:focus{width: 60vw;}
 .portrait .dialogBox{padding:20px;border-radius:10pt; border:2pt solid white;}
 .portrait .dialogBox p{margin: 0px auto 20px auto;}
 .portrait .dialogBox button{margin:20pt auto 0px auto;}
