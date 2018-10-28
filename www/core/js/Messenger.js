@@ -6,6 +6,7 @@ function CMessage(subject,value,sender,receiver,senderApp,receiverApp,moment,opt
 	this.modified=null;
 	this.replay=null;
 	this.ms=null;
+	this.attachments=null;
 this.subject=subject?subject:null;this.value=value?value:null; this.receiver=receiver?receiver:null; this.senderApp=senderApp?senderApp:null;
 this.receiverApp=receiverApp?receiverApp:0; this.moment=moment?moment:null; this.id=id?id:0; this.options=options?options:0;
 this.sender=sender?sender:null;
@@ -75,9 +76,10 @@ CMessage.show=function(messenger,msg,my,text)
 	Popup.set(pan,popup);
 	pan.lObj=msg;
 	pan.setAttribute("class",cssClass);
-	if(msg.receiverApp==Messenger.appId || msg.receiverApp==0)
+	if(msg.receiverApp==Messenger.appId || msg.receiverApp==0){
+		Messenger.translateFileToView(msg);
 		pan.innerHTML=text?text:Messenger.unpurizeText(msg.value);
-	else{
+	}else{
 		var appClass=Messenger.appList[msg.receiverApp];
 		var btn=document.createElement('button');
 		btn.setAttribute("class","yellow btn");
@@ -199,6 +201,7 @@ function Messenger(par,target)
 	this.secureKey=null;
 	this.startDate=null;
 	this.setting=null;
+	this.fileInputs=null;
 if(!Messenger.list)Messenger.list=[];
 this.index=Messenger.list.length;
 Messenger.list[this.index]=this;
@@ -222,6 +225,7 @@ if(Messenger.messages)Messenger.messages.length=0;
 else Messenger.messages=[];
 
 this.startDate=new Date(Date.now());
+this.fileInputs=[];
 	
 	this.send=function(o,sendBox)
 	{
@@ -242,33 +246,44 @@ this.startDate=new Date(Date.now());
 	};
 	this.onSend=function(event)
 	{
+		if(_("#attachArea").attr('class').indexOf('hide')<0)_("#attachArea").addClass('hide'); //make sure to attach area be closed
 		this.sendText(_("#inputTxb").value());
 		_("#inputTxb").source.innerHTML='';
+		
 	};
 	this.sendText=function(arg)
 	{
 		var d=new Date(Date.now());
-		var strStamp=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds();
 		var msg=null;
 		if(CMessage.activeObject){
 			msg=CMessage.activeObject;
-			msg.value=Messenger.purizeText(arg.trim());
+			msg.value=arg;//purize before send
 			Conversation.storeMessages(msg);
 		}else{
 			msg=new CMessage('',Messenger.purizeText(arg.trim()),Messenger.currentUID,this.targetUID,Messenger.appId,Messenger.appId,0);
 			var date=new Date(Date.now());
 			msg.moment={year:date.getFullYear(),'month':date.getMonth()+1,'day':date.getDate(),'hour':date.getHours(),'minute':date.getMinutes(),'second':date.getSeconds()};
 		}
-		CMessage.show(this,msg,true,arg.trim());//shows in sending mode
+		var files=Messenger.extractFiles(msg);//extract files and immediatly upload
+		if(files.length>0){
+			Messenger.translateFileToView(msg,files);//it will change the message value then we must reset it after CMessage.show()
+			Messenger.uploadQueMessages.push(msg);
+		}
+		CMessage.show(this,msg,true);//shows in sending mode //show as uploading
+		if(files.length>0){
+			msg.value=arg;//reset value because it is change by Messenger.translateFileToView();
+			return;//skip remaining of the function to postphone the send after upload
+		}
 		var moment_backup=msg.moment;
-		msg.moment=strStamp;
+		msg.moment=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds();
+		msg.value=Messenger.purizeText(msg.value.trim());
 		var bvalue=msg.value;
 		msg.value=CryptoJS.AES.encrypt(msg.value,this.secureKey).toString();
 		this.send(msg);
 		msg.value=bvalue;
 		msg.moment=moment_backup;
 		CMessage.activeObject=null; //clear CMessage.activeObject
-		console.log('sendText() has called');
+		
 	};
 	this.checkInput=function(event)
 	{
@@ -336,6 +351,13 @@ Messenger.showingMessage=null;
 Messenger.sendBox=null;
 Messenger.connected=false;
 Messenger.resending=false;
+Messenger.readingFiles=null;
+Messenger.shareSecret='sedayeto2018newlife';
+Messenger.currentFileMirror='http://localhost/CloudFile/Mirror/';
+Messenger.uploadQueMessages=null;
+Messenger.postponedUploadAgent =null;
+Messenger.server=null;
+Messenger.notifySent=null;
 
 
 Messenger.config=function()
@@ -343,7 +365,7 @@ Messenger.config=function()
 	Jet.App.register('Messenger',Messenger);
 	Jet.App.form.Messenger={};
 	//Jet.App.form.Messenger[1]="<div class=\"messageArea\" id=\"messageArea%index%\"></div><div class=\"sendArea h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\"/><input id=\"inputTxb%index%\" onkeypress=\"Messenger.list[%index%].checkInput(event)\"/><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div>";
-	Jet.App.form.Messenger[1]="<tr><td style=\"word-break:break-all;vertical-align: top;\"><div class=\"messengerPan infobox\"><div class=\"messageArea\" id=\"messageArea%index%\"></div></div><div class=\"sendArea h-setbox\"><div id=\"attachArea\" class=\"hide\"><ul><li><img src=\"res/image/png/call.png\"/></li><li onclick=\"Messenger.buildEmojies();\"><img src=\"res/image/png/emojies/1F600.png\"/></li><li onclick=\"Messenger.buildApps();\"><img src=\"res/image/png/app.png\"/></li></ul><div id=\"attachBoard\"></div></div><div class=\"h-setbox\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\" onclick=\"_('#attachArea').toggleClass('hide');\"/><div contenteditable=\"true\" class=\"editor\" id=\"inputTxb\" onkeyup=\"Messenger.list[%index%].checkInput(event)\"></div><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div></div></div></td><td class=\"messengerAppArea hide\"><div id=\"msgAppParent\"></div></td></tr>";
+	Jet.App.form.Messenger[1]="<tr><td style=\"word-break:break-all;vertical-align: top;\"><div class=\"messengerPan infobox\"><div class=\"messageArea\" id=\"messageArea%index%\"></div></div><div class=\"sendArea h-setbox\"><div id=\"attachArea\" class=\"hide\"><ul><li><img src=\"res/image/png/call.png\"/></li><li onclick=\"Messenger.buildEmojies();\"><img src=\"res/image/png/emojies/1F600.png\"/></li><li onclick=\"Messenger.buildApps();\"><img src=\"res/image/png/app.png\"/></li><li onclick=\"Messenger.onAttachClick();\"><img src=\"res/image/png/attach.png\"/></li><li onclick=\"Messenger.buildFormats();\" class=\"bold btn\">B</li></ul><div id=\"attachBoard\"></div></div><div class=\"h-setbox inputPan\"><img src=\"res/image/svg/add-white.svg\" class=\"blue btn\" onclick=\"_('#attachArea').toggleClass('hide');\"/><div contenteditable=\"true\" class=\"editor\" id=\"inputTxb\" onkeyup=\"Messenger.list[%index%].checkInput(event)\"></div><img src=\"res/image/svg/right-arrow-white.svg\" class=\"blue btn\" onclick=\"Messenger.list[%index%].onSend(event)\"/></div></div></div></td><td class=\"messengerAppArea hide\"><div id=\"msgAppParent\"></div></td></tr>";
 	Jet.App.form.Messenger[2]="";
 	
 	
@@ -369,6 +391,15 @@ Messenger.config=function()
 	CMessage.config();
 	Messenger.setting=new MSGSetting();
 	Messenger.sendBox=[];
+	Messenger.uploadQueMessages=[];
+	
+	//@debug:UniversalServer.list[4]=new UniversalServer('1',1,"http://192.168.43.201/CloudFile/Mirror/");
+	//debug:UniversalServer.list[4]=new UniversalServer('1',1,"http://192.168.1.3/CloudFile/Mirror/");
+	
+	//set a file mirror
+	let fservers=UniversalServer.getServer(1);
+	Messenger.currentFileMirror=fservers[parseInt(Math.random()*fservers.length)].url;
+	//Messenger.server=UniversalServer.getServer(7,/([a-z]+)\d+/i.exec(Messenger.currentUID)[1]).url; //set the messenger server
 };
 Messenger.buildForm=function(o,view,par)
 {
@@ -494,11 +525,15 @@ Messenger.getStatus=function(res)
 		var seen_index=Messenger.seenIndex;
 		Messenger.updateStatus(JSON.parse(res));
 		if(Messenger.seenIndex>seen_index)Messenger.statusDelayMultiplier=1; //reset multiplier if index was changed
+		else if(!Messenger.notifySent && Messenger.statusDelayMultiplier>1){
+			MSGNotify.set(Messenger.targetUID,Messenger.currentUID,1);//add one notification about me ( the user ) to the audience
+			Messenger.notifySent=true;//avoid sending multiple notification for a message
+		}
+		Messenger.statusDelayMultiplier++;
+		setTimeout(Messenger.getStatus,Messenger.receiveDelay*Messenger.statusDelayMultiplier);
 	}else{
 		if(Messenger.seenIndex<Messenger.messages.length-1){
 			ConvStat.status(Messenger.activeObject.targetUID,Conversation.activeObject.id,Messenger.getStatus);
-			setTimeout(Messenger.getStatus,Messenger.receiveDelay*Messenger.statusDelayMultiplier);
-			Messenger.statusDelayMultiplier++;
 		}
 	}
 };
@@ -629,18 +664,23 @@ Messenger.onCreateApp=function(appid)
 };
 Messenger.onOpenApp=function(appid,msg)
 {
+	Leader.move('open-app',msg.id);//register movement on leader navigator
+	
 	Messenger.activeAppId=appid;
 	
 	var appClass=Messenger.appList[appid];
 	appClass.currentUID=Messenger.currentUID;
-	Libre.sidebar.visible(false);
-	_(".messengerAppArea").removeClass("hide");
-	_("#closeAppBtn").removeClass("hide");
-	var msgAppPar=Messenger.activeObject.dialog.querySelector('#msgAppParent');
+	//Libre.sidebar.visible(false);
+	//_(".messengerAppArea").removeClass("hide");
+	//_("#closeAppBtn").removeClass("hide");
+	_("#xViewer").removeClass('hide');
+	_("#xViewerTitle").value(appClass.title+" with "+ (UserInfo.get(Messenger.activeObject.targetUID).title));
+	//var msgAppPar=Messenger.activeObject.dialog.querySelector('#msgAppParent');
+	var msgAppPar=_('#xViewerPan').source;
 	if(appClass.loaded){
 		//msg=Object.create(msg);
 		//msg.value=CryptoJS.AES.decrypt((msg.value),Messenger.activeObject.secureKey).toString(CryptoJS.enc.Utf8);
-		msgAppPar.style.height="calc(100% - "+document.querySelector('.sendArea').offsetHeight+"px)";
+		//msgAppPar.style.height="calc(100% - "+document.querySelector('.sendArea').offsetHeight+"px)";
 		appClass.openByCuad(msg,msgAppPar);
 	}else{
 		appClass.loadResourceCallback=function(){
@@ -650,7 +690,7 @@ Messenger.onOpenApp=function(appid,msg)
 		appClass.loadResources("service/"+appid+"/");
 	}
 	
-	if(Messenger.isMobile())document.querySelector(".messageArea").style.display="none";
+	//if(Messenger.isMobile())document.querySelector(".messageArea").style.display="none";
 };
 Messenger.onEditAppData=function(msg)
 {
@@ -691,11 +731,13 @@ Messenger.buildApps=function()
 };
 Messenger.closeApp=function()
 {
-	document.querySelector("#msgAppParent").innerHTML="";
-	_(".messengerAppArea").addClass("hide");
-	_("#closeAppBtn").addClass("hide");
-	document.querySelector(".messageArea").style.display="";
+	//document.querySelector("#msgAppParent").innerHTML="";
+	//_(".messengerAppArea").addClass("hide");
+	//_("#closeAppBtn").addClass("hide");
+	//document.querySelector(".messageArea").style.display="";
 	Messenger.activeAppId=null;
+	document.querySelector("#xViewerPan").innerHTML="";
+	_("#xViewer").addClass("hide");
 };
 Messenger.isShowing=function(msg)
 {
@@ -712,12 +754,14 @@ Messenger.onHome=function()
 	if(Messenger.activeObject)Messenger.activeObject.exit();
 	_("#msgAudPar").addClass('hide');
 	FLHome.show(_('#workPan').source);
+	Leader.move('messenger','home');//register movement on leader navigator
 };
 Messenger.onSetting=function()
 {
 	if(Messenger.activeObject)Messenger.activeObject.exit();
 	_("#msgAudPar").addClass('hide');
 	FLSetting.show(_('#workPan').source);
+	Leader.move('messenger','home');//register movement on leader navigator
 };
 Messenger.showFlags=function(res)
 {
@@ -837,6 +881,352 @@ Messenger.setConnected=function(state)
 		}
 	}
 };
+Messenger.onAttachClick=function()
+{
+	var aboard=document.getElementById('attachBoard');
+	aboard.innerHTML="";
+	var upan=document.createElement('div');
+	upan.setAttribute('class','uploadPan');
+	
+	var img=document.createElement('img');
+	img.setAttribute('src','res/image/png/upload.png');
+	
+	var p=document.createElement('p');
+	p.innerHTML="Drag files here, or click/touch to select files,";
+	
+	var inp=document.createElement('input');
+	inp.setAttribute('type','file');
+	inp.setAttribute('multiple','multiple');
+	inp.setAttribute('onchange','Messenger.attached(event)');
+	
+	upan.appendChild(img);
+	upan.appendChild(p);
+	upan.appendChild(inp);
+	aboard.appendChild(upan);
+};
+Messenger.attached=function(e)
+{
+	var inp=e.target;
+	var inputBox=document.getElementById('inputTxb');
+	var filePans=inputBox.querySelectorAll('.file');
+	var files=[];
+	for(var j=0;j<filePans.length;j++){
+		files.push(filePans.innerHTML);
+	}
+	var queInp=false;
+	for(var i=0;i<inp.files.length;i++){
+		if(files.indexOf(inp.files[i].name)<0){
+			//create element to show in inputBox
+			var fe=document.createElement('div');
+			fe.setAttribute('class','file');
+			fe.innerHTML=inp.files[i].name;
+			fe.setAttribute('contenteditable','false');
+			fe.setAttribute('ondblclick','if(event.stopPropagation)event.stopPropagation();event.cancelBubble=true;Messenger.removeMe(event.target);');
+			inputBox.appendChild(fe);
+			
+			queInp=true;
+		}
+	}
+	if(queInp){
+		Messenger.activeObject.fileInputs.push(inp); //que to upload on sending message
+		var par=inp.parentElement;
+		par.removeChild(inp);
+		var inp=document.createElement('input');
+		inp.setAttribute('type','file');
+		inp.setAttribute('multiple','multiple');
+		inp.setAttribute('onchange','Messenger.attached(event)');
+		par.appendChild(inp);//add new input to the uploadPan
+		
+		var p=document.createElement('p');//allow cursor to navigate between or go after files
+		p.innerHTML="&nbsp;";
+		inputBox.appendChild(p);
+	}
+};
+Messenger.removeMe=function(el)
+{
+	el.parentElement.removeChild(el);
+};
+Messenger.extractFiles=function(msg)
+{
+	var inputBox=document.getElementById('inputTxb');
+	var filePans=inputBox.querySelectorAll('.file');
+	var fileNames=[];
+	var files=[];
+	msg.files=files;//set a pointer to file list to the message
+	msg.xhrs=[];
+	for(var i=0;i<filePans.length;i++){
+		var fname=filePans[i].innerHTML;
+		for(var j=0;j<Messenger.activeObject.fileInputs.length;j++){
+			var inp=Messenger.activeObject.fileInputs[j];
+			var file_found=false;
+			for(var x=0;x<inp.files.length;x++){
+				if(fname==inp.files[x].name){
+					files.push(inp.files[x]);
+					fileNames.push(inp.files[x].name); //keep names to control when upload finalyzed to send message
+					file_found=true;
+					break;
+				}
+			}
+			if(file_found)break; //exit loop and search for next file
+		}
+	}
+	Messenger.continueUpload(msg);
+	if(true)return files; //skip continue of the method
+	
+	if(true){
+		for(var k=0;k<files.length;k++){
+			var reader=new FileReader();
+			reader.onloadend=function(){
+				var index=this.result.indexOf('base64')+7; //result is in this format -> some-signature-base64,data
+				var fd=new FormData();
+				fd.append("fileName",this.targetFileName);
+				fd.append("content",this.result.substring(index));
+				fd.append("shareSecret",Messenger.shareSecret);
+				fd.append("privacy","2");//tell the server this is shared file
+				var xhr=new XMLHttpRequest();
+				xhr.open("POST",Messenger.currentFileMirror+"client/file/upload/",true);
+				xhr.targetCMessage=this.targetCMessage;
+				xhr.send(fd);
+				/*xhr.onreadystatechange=function(e){
+					if(this.readyState==4 && (this.status==200)){
+						var response=this.responseText;
+						Messenger.fileUploadCallback(response,this.targetCMessage);
+					}
+				};*/
+				xhr.onloadend=function(e){
+					if(this.status==200){
+						Messenger.fileUploadCallback(this.responseText,this.targetCMessage);
+					}
+				};
+				this.targetCMessage.xhrs.push(xhr);
+			};
+			reader.targetFileName=files[k].name;
+			reader.targetCMessage=msg;//a pointer to the message
+			reader.readAsDataURL(files[k]);
+		}
+	}else{//upload classicaly later for browser only
+			var fd=new FormData();
+			fd.append("shareSecret",Messenger.shareSecret);
+			fd.append("privacy","2");//tell the server this is shared file
+			for(var k=0;k<files.length;k++){
+				fd.append('theFile',files[k]);
+			}
+			var xhr=new XMLHttpRequest();
+			xhr.open("POST",Messenger.currentFileMirror+"client/file/upload/",true);
+			/*xhr.onreadystatechange=function(e){
+				if(this.readyState==4 && this.status==200){
+					var response=this.responseText;
+					Messenger.fileUploadCallback(response,this.targetCMessage);
+				}
+			};*/
+			xhr.onload=function(e){
+				if(this.status==200){
+					Messenger.fileUploadCallback(this.responseText,this.targetCMessage);
+				}
+			};
+			xhr.targetCMessage=msg;//a pointer to the uploading message
+			xhr.send(fd);
+			msg.xhrs.push(xhr);
+	}
+	
+	return files;
+};
+Messenger.fileUploadCallback=function(res,msg)
+{
+	var ls=res.split(',');
+	for(var i=0;i<ls.length;i++){
+		var parts=ls[i].split(':');
+		msg.uploadedFiles[parts[0]]={'code':parts[1],'shareKey':parts[4]};
+		msg.attachments.push(msg.uploadedFiles[parts[0]]);//current uploaded file,sends files info to server to keep separately for lifecycle processes
+	}
+	var names=Object.keys(msg.uploadedFiles);
+	var uploading_yet=false;
+	for(var j=0;j<names.length;j++)if(typeof(msg.uploadedFiles[names[j]])!="object"){uploading_yet=true; break;}
+	if(!uploading_yet){//if uploaded file names equals to total files the upload is finished
+		//continue to send files
+		//1-purize
+		var pat=/<div\s+class\=\"file\"[^>]*>([^<]+)<\/div>/g;
+		var r=null;
+		var bvalue=msg.value;
+		while((r=pat.exec(msg.value))){
+			bvalue=bvalue.replace(r[0],"&file:"+r[1]+':'+msg.uploadedFiles[r[1]].code+":"+msg.uploadedFiles[r[1]].shareKey+" ");//&file:fileName:code:shareKey
+		}
+		msg.value=bvalue;
+		
+		delete msg.uploadedFiles;//delete to avoid sending it with json
+		delete msg.files;//delete to avoid sending it with json
+		delete msg.xhrs;//delete to avoid sending it with json
+		
+		//a copy from end of Messenger.sendText();
+		var d=new Date(Date.now());
+		var moment_backup=msg.moment;
+		msg.moment=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds();
+		msg.value=Messenger.purizeText(msg.value.trim());
+		msg.value=CryptoJS.AES.encrypt(msg.value,Messenger.activeObject.secureKey).toString();
+		Messenger.activeObject.send(msg);
+		msg.value=bvalue;
+		msg.moment=moment_backup;
+		CMessage.activeObject=null; //clear CMessage.activeObject
+		Messenger.notifySent=false;//allow to send notification again
+	}else{
+		//wait...
+	}
+};
+Messenger.translateFileToView=function(msg,files)
+{
+	if(files){
+		var pat=/<div\s+class\=\"file\"[^>]*>([^<]+)<\/div>/g;
+		var bvalue=msg.value;
+		while((r=pat.exec(bvalue))){
+			var fname=r[1];
+			for(var i=0;i<files.length;i++){
+				if(files[i].name==fname){
+					var url=URL.createObjectURL(files[i]);
+					if(Messenger.getType(fname)=="image")msg.value=msg.value.replace(r[0],"<img class=\"file\" src=\""+url+"\"/>");
+					else if(Messenger.getType(fname)=="audio")msg.value=msg.value.replace(r[0],"<audio class=\"file\" src=\""+url+"\"/>");
+					else if(Messenger.getType(fname)=="video")msg.value=msg.value.replace(r[0],"<video class=\"file\" src=\""+url+"\"/>");
+					else msg.value=msg.value.replace(r[0],"<a class=\"file\" href=\""+url+"\">"+fname+"</a>");
+				}
+			}
+		}
+	}else{
+		var pat=/\&file:([^\:]+):([^\:]+):([\w]+)/g;
+		var bvalue=msg.value;
+		while((r=pat.exec(bvalue))){
+			var fname=r[1];
+			//var url=Messenger.currentFileMirror+"client/file/go/?privacy=2&code="+encodeURIComponent(r[2])+"&share_key="+r[3];
+			var url=TransferManager.getUrl(r[2],r[3],true);
+			if(Messenger.getType(fname)=="image"){
+				var e="onclick=\"FileViewer.open('r[1]','r[2]','r[3]')\"".replace("r[1]",r[1]).replace("r[2]",r[2]).replace("r[3]",r[3]);
+				msg.value=msg.value.replace(r[0],"<img class=\"file\" src=\""+url+"\""+e+"/>");
+			}else if(Messenger.getType(fname)=="audio")msg.value=msg.value.replace(r[0],"<audio controls class=\"file\" src=\""+url+"\"/>");
+			else if(Messenger.getType(fname)=="video"){
+				var e=" onclick=\"FileViewer.open('r[1]','r[2]','r[3]')\"".replace("r[1]",r[1]).replace("r[2]",r[2]).replace("r[3]",r[3]);
+				msg.value=msg.value.replace(r[0],"<video controls class=\"file\" src=\""+url+"\""+e+"/>");
+			}else msg.value=msg.value.replace(r[0],"<a class=\"file\" href=\""+url+"\">"+fname+"</a>");
+		}
+	}
+};
+Messenger.getType=function(fname)
+{
+	if(typeof(fname)=="string"){
+		var r=null;
+		if((r=/\.([^\.]+)$/.exec(fname))){
+			switch(r[1].toLowerCase()){
+				case 'png': case 'jpg': case 'jpeg': case 'gif': case 'bmp': case 'svg': return 'image';
+				case 'mp3': case 'wav': case 'mid': return 'audio';
+				case 'mp4': case 'ogg': return 'video';
+			}
+		}
+	}
+	return 'file';
+};
+Messenger.toggleTextFormat=function(format)
+{
+	if(format=="bold" || format=="italic" || format=="underline"){
+		document.execCommand(format);
+	}
+};
+Messenger.buildFormats=function()
+{
+	var aboard=document.getElementById('attachBoard');
+	aboard.innerHTML="";
+	var em=document.createElement('ul');
+	aboard.appendChild(em);
+	var keys=['bold','italic','underline'];
+	var li=null; var img=null;
+	for(var i=0;i<keys.length;i++){
+		li=document.createElement("li");
+		li.setAttribute('class','yellow btn '+keys[i]);
+		li.innerHTML=keys[i][0].toUpperCase();//first character of format
+		li.setAttribute("onclick","Messenger.toggleTextFormat('"+keys[i]+"');");
+		em.appendChild(li);
+	}
+};
+Messenger.continueUpload=function(msg)
+{
+	if(!msg.uploadedFiles)msg.uploadedFiles={};
+	if(!msg.attachments)msg.attachments=[];
+	for(var k=0;k<msg.files.length;k++){
+		if(!msg.uploadedFiles[msg.files[k].name]){
+			var reader=new FileReader();
+			reader.onloadend=function(){
+				this.targetCMessage.uploadedFiles[this.targetFileName]="progress";
+				var index=this.result.indexOf('base64')+7; //result is in this format -> some-signature-base64,data
+				var fd=new FormData();
+				fd.append("fileName",this.targetFileName);
+				fd.append("content",this.result.substring(index));
+				fd.append("shareSecret",Messenger.shareSecret);
+				fd.append("privacy","2");//tell the server this is shared file
+				var xhr=new XMLHttpRequest();
+				xhr.open("POST",Messenger.currentFileMirror+"client/file/upload/",true);
+				xhr.targetCMessage=this.targetCMessage;
+				xhr.targetFileName=this.targetFileName;
+				xhr.send(fd);
+				/*xhr.onreadystatechange=function(e){
+					if(this.readyState==4 && (this.status==200)){
+						var response=this.responseText;
+						Messenger.fileUploadCallback(response,this.targetCMessage);
+					}
+				};*/
+				xhr.onloadend=function(e){
+					this.targetCMessage.uploadedFiles[this.targetFileName]=null; //means the upload request is completed, if undefined means in progress
+					if(this.status==200){
+						Messenger.fileUploadCallback(this.responseText,this.targetCMessage);
+					}
+				};
+				this.targetCMessage.xhrs.push(xhr);
+			};
+			reader.targetFileName=msg.files[k].name;
+			reader.targetCMessage=msg;//a pointer to the message
+			reader.readAsDataURL(msg.files[k]);
+		}
+	}
+	if(!Messenger.postponedUploadAgent)Messenger.postponedUploadAgent=setTimeout(Messenger.uploadAgent,30000);
+};
+Messenger.uploadAgent=function()
+{
+	var clear=true;
+	for(var i=0;i<Messenger.uploadQueMessages.length;i++){
+		if(Messenger.uploadQueMessages[i]){
+			clear=false;
+			var msg=Messenger.uploadQueMessages[i];
+			if(msg.files){
+				Messenger.continueUpload(msg);
+			}else{
+				Messenger.uploadQueMessages[i]=null;
+			}
+		}
+	}
+	if(clear){
+		Messenger.uploadQueMessages=[];
+		Messenger.postponedUploadAgent=null;
+	}else if(!Messenger.postponedUploadAgent)Messenger.postponedUploadAgent=setTimeout(Messenger.uploadAgent,30000);
+};
+Messenger.beforeSend=function(nt)
+{
+	if(nt.target.indexOf('client/CMessage/')>=0 || nt.target.indexOf('client/CMOption/')>=0 || nt.target.indexOf('client/ConvStat/')>=0){
+		if(Conversation.server){
+			nt.target=Conversation.server+nt.target;
+			nt.add('session',Conversation.serverSession,true);
+			nt.add('appkey',CAuth.appkey,true);
+		}
+	}
+	if(nt.target.match(/^https*:\/\//))return;
+	var url=Messenger.server+nt.target;
+	url=url.replace(/\/\//g,"/"); //convert all duplicated slash to one //=>/
+	url=url.replace(/\:\//,"://"); //convert first scheme slash to double https:/host => https://host
+	nt.target=url;
+	
+	if(typeof(CAuth)!="undefined"){
+		if(CAuth.activeObject){
+			if(CAuth.activeObject.session){
+				nt.add('session',CAuth.activeObject.session,true);
+				nt.add('appkey',CAuth.appkey,true);
+			}
+		}
+	}
+};
 
 function Conversation(uid,title,picture)
 {
@@ -861,6 +1251,8 @@ Conversation.db=null;
 Conversation.convOS=null;
 Conversation.msgOS=null;
 Conversation.audIconPopup=null;
+Conversation.server='';
+Conversation.serverSession='';
 
 
 Conversation.save=function(o)
@@ -1002,6 +1394,10 @@ Conversation.buildForm=function(o,view,par)
 Conversation.start=function(uid,callback)
 {
 	//update conversation id first
+	MSGHost.get(Messenger.currentUID,uid,Conversation.setServer);//first argument is my (the user) uid not the audience and it will set on serverside,any arguement here will ignore
+	MSGHost.setOption('me',uid,1,false);//unset deleted option
+	MSGNotify.remove('me',uid);
+	Leader.move('conv-start',uid);//register movement on leader navigator
 	ConvStat.get(Messenger.currentUID,uid);
 	Conversation.startCallback=callback;
 	//remove from contactArea
@@ -1043,7 +1439,7 @@ Conversation.start=function(uid,callback)
 					Conversation.save(conv);
 				}else{
 					UserInfo.get(uid,function(e){
-						var picture=CloudFile.getUrlByCode(uinfo.picture);
+						var picture=CloudFile.getUrlByCode(e.picture);
 						if(!picture)picture="res/image/png/user.png";
 						var conv=new Conversation(e.uid,e.title,picture);
 						Conversation.configMessenger(conv);
@@ -1129,6 +1525,16 @@ Conversation.defaultImage=function(e)
 	TextAvatar.getTextAvatar(title,avatar,null,null,2);
 	//e.target.setAttribute("src","res/image/png/user.png");
 };
+Conversation.setServer=function(res)
+{
+	var parts=res.split(',');
+	Conversation.server=parts[0];
+	if(parts[1]){
+		Conversation.serverSession=parts[1];
+	}else{
+		Conversation.serverSession="";
+	}
+};
 Conversation.storeMessages=function(messages)
 {
 	var objectStore=Conversation.db.transaction(["msgOS"],"readwrite").objectStore('msgOS');
@@ -1143,17 +1549,20 @@ Conversation.storeMessages=function(messages)
 };
 Conversation.get=function(arg,last)
 {
-	if(arg){
+	if(typeof(arg)=="string"){
 		Messenger.setConnected(true);
 		var ls=JSON.parse(arg);
 		for(var i=0;i<ls.length;i++){
-			Conversation.load(ls[i].uid,ls[i]);
+			//Conversation.load(ls[i].uid,ls[i]);
+			Conversation.load(ls[i].conv,ls[i]);
 		}
 		setTimeout(Conversation.get,Messenger.receiveDelay*3);
 	}else{
-		var n=new NetData();
+		/*var n=new NetData();
 		n.onerror=Conversation.getError;
 		n.url="client/Conversation/get/"; n.callback=Conversation.get; n.add('time',Messenger.lastMoment?Messenger.lastMoment:parseInt(localStorage.lastMoment)).commit();
+		*/
+		MSGNotify.get('me',Conversation.get);
 	}
 };
 Conversation.loadMessages=function(uid)
@@ -1221,6 +1630,7 @@ Conversation.delete=function(uid,del_conversation)
 	
 	if(del_conversation){
 		var request=Conversation.db.transaction(['convOS'],'readwrite').objectStore('convOS').delete(uid);
+		MSGHost.setOption('me',uid,1,true);//delete my conversation, uid of the user (me) is not important here. it will set on server side
 	}
 };
 Conversation.deleteFinalyze=function(audience)
@@ -1303,6 +1713,7 @@ ConvSetting.onChangeKey=function(evt)
 };
 ConvSetting.onEdit=function(uid)
 {
+	Leader.move('conv-setting',uid);//register movement on leader navigator
 	Libre.work.show('');
 	if(Messenger.activeObject)Messenger.activeObject.exit();
 	var skey=localStorage.getItem(Messenger.currentUID+"_"+uid);
@@ -1421,4 +1832,192 @@ this.broadcastReceiveTime=typeof(receiveTime)!='undefined'?receiveTime:true; thi
 };
 
 
+
+
+function TransferManager()
+{
+};
+
+
+
+
+TransferManager.getUrl=function(code,shareKey,thumbnail)
+{
+	var url=CloudFile.getUrlByCode({'code':code,'privacy':2,'shareKey':shareKey});
+	if(thumbnail){
+		url+="&x="+parseInt(window.screen.availWidth/3)+"&y="+parseInt(window.screen.availWidth/5);
+	}
+	return url;
+};
+
+function Leader()
+{
+	
+	this.movements=null;
+};
+
+
+
+Leader.allowCapture=true;
+Leader.currentLabel=null;
+Leader.currentArg=null;
+
+
+Leader.move=function(label,arg)
+{
+	if(Leader.allowCapture){
+		if(!Leader.movements)Leader.movements=[];
+		if(Leader.currentLabel!=label && Leader.currentArg!=arg)Leader.movements.push(label+"/"+arg);
+	}
+	Leader.currentLabel=label;Leader.currentArg=arg;
+};
+Leader.onBack=function()
+{
+	try{
+		if(Leader.movements.length>1){
+			var m=Leader.movements.pop();//get and remove current task
+			if(m){
+				var parts=m.split('/');
+				if(parts[0]=="fileviewer"){
+					FileViewer.onBack();
+					//Leader.movements.pop();//already it is on preivous task and it requires to 
+				}else if(parts[0]=="open-app"){
+					Messenger.closeApp();
+				}
+				if(Leader.currentLabel==parts[0] && Leader.currentArg==parts[1]){
+					m=Leader.movements[Leader.movements.length-1];//point to last without removing it
+					var parts=m.split('/');
+				}
+				
+				Leader.allowCapture=false;
+				Leader.navigate(parts[0],parts[1]);
+				Leader.allowCapture=true;
+			}
+		}
+	}catch(ex){
+		console.log('navigation is invalid.');
+	}
+};
+Leader.navigate=function(label,arg)
+{
+	switch(label){
+		case 'messenger':
+			if(arg=='home')Messenger.onHome();
+			else if(arg=='setting')Messenger.onSetting();
+			break;
+		case 'conv-start':
+			Conversation.start(arg);
+			break;
+		case 'conv-setting':
+			ConvSetting.onEdit(arg);
+			break;
+		case 'search':
+			break;
+		case 'fileviewer':
+			var parts=lable.split(arg);//name,code,shareKey
+			FileViewer.open(parts[0],parts[1],parts[2]);
+			break;
+	}
+};
+
+function FileViewer()
+{
+};
+
+
+
+
+FileViewer.open=function(name,code,shareKey)
+{
+	Leader.move('fileviewer',name+':'+code+':'+shareKey);//register movement on leader navigator
+	var type=Messenger.getType(code);
+	var tag=null;
+	switch(type){
+		case 'image':
+			tag=document.createElement('img');
+			break;
+		case 'video':
+			tag=document.createElement('video');
+			tag.setAttribute('controls','true');
+			break;
+	}
+	tag.setAttribute('src',TransferManager.getUrl(code,shareKey,false));
+	_("#xViewerTitle").value(name);
+	_("#xViewerPan").source.innerHTML="";
+	_("#xViewerPan").value(tag);
+	_("#xViewer").removeClass('hide');
+};
+FileViewer.onBack=function()
+{
+	_("#xViewer").addClass('hide');
+};
+
+function MSGHost()
+{
+	
+	this.host=null;
+	this.client=null;
+	this.option=null;
+};
+
+
+
+MSGHost.table='msghost';
+
+
+MSGHost.get=function(uid,conv,callback)
+{
+	if(/[a-z]+/i.exec(uid)[0]==/[a-z]+/i.exec(conv)[0]){callback(""); return;}
+	var n=new NetData(); n.url="client/MSGHost/get/";
+	n.callback=callback;
+	n.add('conv',conv,true).commit();
+};
+MSGHost.setOption=function(uid,conv,option,seto)
+{
+	var n=new NetData(); n.url="client/MSGHost/setOption/"; n.callback=null; n.onerror=null;
+	n.add('conv',conv).add('option',option).add('seto',seto?1:0).commit();
+};
+
+function MSGNotify(uid,conv,count)
+{
+	
+	this.uid=null;
+	this.conv=null;
+	this.count=null;
+
+};
+
+
+
+MSGNotify.table='msg_notify';
+
+
+MSGNotify.set=function(uid,conv,count)
+{
+	var n=new NetData(); n.url=UniversalServer.getServer(7,/[a-z]+/i.exec(uid)[0]).url+"client/MSGNotify/set/";
+	n.add('uid',uid).add('conv',conv).add('count',count).commit();
+};
+MSGNotify.get=function(uid,callback)
+{
+	var n=new NetData();
+	n.url="client/MSGNotify/get/";
+	n.callback=callback; n.onerror=MSGNotify.onError; n.commit();
+};
+MSGNotify.remove=function(uid,conv)
+{
+	var n=new NetData(); n.url="client/MSGNotify/remove/"; n.onerror=null; n.callback=null;
+	n.add('conv',conv).commit();
+};
+
+function RemoteSession()
+{
+	
+	this.uid=null;
+	this.host=null;
+	this.session=null;
+};
+
+
+
+RemoteSession.table='r_session';
 

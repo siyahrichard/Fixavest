@@ -34,12 +34,17 @@ function __init__(){
   document.body.addEventListener("login",function(e){
       Libre.loadWD.callNext();
   });
+  document.body.addEventListener("loginerror",function(e){
+      onWorkOffline();
+      Libre.loadWD.callNext();//call on offline mode
+  });
   document.body.addEventListener("peopleready",function(e){
       Libre.loadWD.done('1',true);
   });
   document.body.addEventListener("contactchecked",function(e){
       Libre.loadWD.done('3',true);
   });
+  document.addEventListener('backbutton',Leader.onBack,false);
 
   /*var startEvent="peopleready";
   contactEvent=null;

@@ -295,7 +295,7 @@ return o.dialog;};PopupItem.runCommand=function(popupIndex,itemIndex)
 {var item=Popup.list[popupIndex].items[itemIndex];if(item)if(item.command)item.command(item);Popup.closeAll();};PopupItem.diselectAll=function(items)
 {for(var i=0;i<items.length;i++){items[i].dialog.setAttribute('class','');}};PopupItem.select=function(items,index)
 {PopupItem.diselectAll(items);if(index>-1)items[index].dialog.setAttribute('class','selected');};PopupItem.onClick=function(event)
-{if(event.target.nodeName.toLowerCase()=="li"){var popupIndex=event.target.getAttribute("popupIndex");var itemIndex=event.target.getAttribute("itemIndex");var item=Popup.list[popupIndex].items[itemIndex];if(item)if(item.command)item.command(item);event.cancelBubble=true;event.stopPropagation();}else{if(event.target.parentElement)event.target.parentElement.click();}};function CloudFile(title,code,owner,size,created,modified,parent,type,mode,share,offline,id)
+{if(event.target.nodeName.toLowerCase()=="li"){Popup.closeAll();var popupIndex=event.target.getAttribute("popupIndex");var itemIndex=event.target.getAttribute("itemIndex");var item=Popup.list[popupIndex].items[itemIndex];if(item)if(item.command)item.command(item);event.cancelBubble=true;event.stopPropagation();}else{if(event.target.parentElement)event.target.parentElement.click();}};function CloudFile(title,code,owner,size,created,modified,parent,type,mode,share,offline,id)
 {this.title=null;this.code=null;this.promotion=null;this.owner=null;this.size=null;this.created=null;this.modified=null;this.parent=null;this.type=null;this.id=null;this.offline=null;this.mode=0;this.share=0;this.privacy=null;this.url=null;this.owner=owner;this.title=title;this.code=code;this.size=size?size:0;this.created=created?created:0;this.modified=modified?modified:0;this.parent=parent?parent:0;this.type=type?parseInt(type):1;this.mode=mode?mode:0;this.share=share?share:0;this.offline=offline?offline:0;this.id=id?id:0;this.url="";};CloudFile.net=null;CloudFile.server=null;CloudFile.table='cfTb';CloudFile.list=null;CloudFile.dedicated=false;CloudFile.net2=null;CloudFile.activeObject=null;CloudFile.save=function(file,job)
 {var n=CloudFile.net;n.clear();if(typeof(job)!="undefined")n.target=CloudFile.server+"/client/file/"+job+"/";n.target=CloudFile.server+"client/file/save";var xml="<CloudFile>\n";if(file instanceof Array)
 {for(var i in file)
@@ -338,7 +338,20 @@ tmp=new CloudFile(cur.getAttribute("title"),cur.getAttribute("code"),cur.getAttr
 tmp=new CloudFile(cur.getAttribute("title"),0,cur.getAttribute("owner"),0,cur.getAttribute("created"),cur.getAttribute("created"),cur.getAttribute("parent"),0,mode,share,offline,"dir"+cur.getAttribute("id"));tmp.privacy=pr;tmp.url=decodeURIComponent(cur.getAttribute('url'));tmp.privacy=pr;return tmp;}
 return null;};CloudFile.getExtention=function(name)
 {var pat=/\.(\w+)$/;var res=pat.exec(name);if(res[1])return res[1];else return"";};CloudFile.getUrlByCode=function(cfile)
-{try
-{var pat=/(\w+)_(\w+).(\w+)/;var code=(cfile instanceof CloudFile)?cfile.code:cfile;var pr=(cfile instanceof CloudFile)?cfile.privacy:1;var res=pat.exec(code);var server=UniversalServer.getServer(1,res[1]);return server.url+"client/file/go/?p="+pr+"&code="+code;}
-catch(ex)
-{return null;}};
+{
+	try
+	{
+	    var pat=/(\w+)_(\w+).(\w+)/;
+	    var code=(cfile.code)?cfile.code:cfile;
+	    var pr=(cfile.privacy)?cfile.privacy:1;
+	    var share_param=cfile.shareKey?"&share_key="+cfile.shareKey:"";
+	    var res=pat.exec(code);
+	    var server=UniversalServer.getServer(1,res[1]);
+	    return server.url+"client/file/go/?p="+pr+"&code="+code+share_param;
+	}
+	catch(ex)
+	{
+	    return null;
+	}
+	
+};
